@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Symptom Identifier — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7fbfb;--deep:#0D5C63;--mid:#44A1A0;--light:#78CDD7;--dark2:#247B7B;--ink:#1a3d40;--muted:#4a7a7d;--w:#fff;--bdr:rgba(68,161,160,.18);--bdr2:rgba(68,161,160,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+nav{position:sticky;top:0;z-index:99;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;background:rgba(247,251,251,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
+.logo{font-family:'Fraunces',serif;font-weight:900;font-size:1rem;color:var(--deep);text-decoration:none}.logo span{color:var(--mid)}
+.badge{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:rgba(68,161,160,.1);border:1.5px solid var(--bdr);padding:.2rem .7rem;border-radius:20px}
+.back{font-size:.74rem;font-weight:700;color:var(--muted);text-decoration:none;border:1.5px solid var(--bdr);padding:.28rem .8rem;border-radius:6px;transition:all .2s}.back:hover{color:var(--deep);border-color:var(--bdr2)}
+main{max-width:740px;margin:0 auto;padding:2.8rem 2rem 5rem}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:2.4rem;color:var(--deep);margin-bottom:.5rem}
+.sub{font-size:.98rem;color:var(--muted);line-height:1.8;margin-bottom:.7rem;max-width:540px}
+.disclaimer{font-size:.84rem;color:var(--muted);background:var(--w);border:1.5px solid var(--bdr);border-radius:10px;padding:.85rem 1.1rem;margin-bottom:2.2rem;line-height:1.68}
+.disclaimer strong{color:var(--deep)}
+
+/* progress bar */
+.prog-wrap{height:5px;background:rgba(68,161,160,.15);border-radius:3px;margin-bottom:2rem;overflow:hidden}
+#prog-fill{height:100%;background:var(--mid);border-radius:3px;transition:width .4s ease;width:0%}
+.prog-label{display:flex;justify-content:space-between;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.5rem}
+
+/* questions */
+.q-wrap{margin-bottom:2rem}
+.q-block{padding:1.6rem;background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;margin-bottom:1.1rem;transition:border-color .2s,box-shadow .2s}
+.q-block.answered{border-color:rgba(68,161,160,.4);box-shadow:0 3px 14px rgba(68,161,160,.1)}
+.q-num{font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:.42rem}
+.q-text{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.55;margin-bottom:1rem}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
+.opt{padding:.65rem 1rem;border-radius:8px;border:1.5px solid var(--bdr);font-size:.88rem;font-weight:700;cursor:pointer;color:var(--muted);background:transparent;font-family:'Nunito',sans-serif;transition:all .2s;text-align:left}
+.opt:hover{border-color:var(--bdr2);color:var(--deep);background:rgba(68,161,160,.04)}
+.opt.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+
+/* submit */
+.submit-row{display:flex;gap:1rem;align-items:center;margin-top:.5rem}
+.submit-btn{background:var(--deep);color:#fff;padding:.74rem 2.2rem;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.94rem;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+.submit-btn:hover{background:var(--dark2);transform:translateY(-2px);box-shadow:0 8px 22px rgba(13,92,99,.18)}
+.reset-btn{background:transparent;border:1.5px solid var(--bdr);color:var(--muted);padding:.72rem 1.6rem;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s}
+.reset-btn:hover{border-color:var(--bdr2);color:var(--deep)}
+
+/* result */
+#result{display:none;animation:ru .45s ease;margin-top:2rem}
+@keyframes ru{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.result-card{border-radius:16px;padding:2.2rem}
+.result-card.low{background:#ecfdf5;border:2px solid #6ee7b7}
+.result-card.mid{background:#fffbeb;border:2px solid #fcd34d}
+.result-card.hi{background:#fef2f2;border:2px solid #fca5a5}
+.result-head{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+.result-icon{font-size:2.5rem}
+.result-head h2{font-family:'Fraunces',serif;font-weight:900;font-size:1.5rem;line-height:1.1}
+.result-card.low  h2{color:#065f46}.result-card.mid h2{color:#92400e}.result-card.hi h2{color:#991b1b}
+
+/* score gauge */
+.gauge-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:1.4rem}
+.gauge-track{flex:1;height:12px;background:rgba(0,0,0,.08);border-radius:6px;overflow:hidden}
+.gauge-fill{height:100%;border-radius:6px;transition:width 1s ease}
+.gauge-score{font-family:'Fraunces',serif;font-weight:900;font-size:1.2rem;flex-shrink:0}
+.result-card.low  .gauge-fill{background:#10b981}.result-card.low  .gauge-score{color:#065f46}
+.result-card.mid  .gauge-fill{background:#f59e0b}.result-card.mid  .gauge-score{color:#92400e}
+.result-card.hi   .gauge-fill{background:#ef4444}.result-card.hi   .gauge-score{color:#991b1b}
+
+.result-body{font-size:.95rem;line-height:1.82;margin-bottom:1.2rem}
+.result-card.low  .result-body{color:#065f46}
+.result-card.mid  .result-body{color:#78350f}
+.result-card.hi   .result-body{color:#7f1d1d}
+.result-advice{font-size:.92rem;line-height:1.78;padding:.9rem 1.1rem;border-radius:10px;margin-bottom:1.5rem}
+.result-card.low  .result-advice{background:rgba(16,185,129,.1);color:#064e3b}
+.result-card.mid  .result-advice{background:rgba(245,158,11,.1);color:#713f12}
+.result-card.hi   .result-advice{background:rgba(239,68,68,.1);color:#7f1d1d}
+.ra-row{display:flex;gap:.75rem;flex-wrap:wrap}
+.ra{padding:.62rem 1.4rem;border-radius:7px;font-size:.86rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Nunito',sans-serif;letter-spacing:.04em;transition:all .2s}
+.ra.solid{background:var(--deep);color:#fff;border:none}.ra.solid:hover{background:var(--dark2);transform:translateY(-1px)}
+.ra.outline{background:transparent;border:1.5px solid var(--bdr2);color:var(--deep)}.ra.outline:hover{background:rgba(68,161,160,.08)}
+.ra.call{background:#dc2626;color:#fff;border:none}.ra.call:hover{background:#b91c1c;transform:translateY(-1px)}
+
+@media(max-width:580px){.opts{grid-template-columns:1fr}main{padding:2rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="matters-of-the-mind.html" class="logo">Matters of the <span>Mind</span></a>
+  <span class="badge">🔍 Symptom Identifier</span>
+  <a href="matters-of-the-mind.html" class="back">← Back</a>
+</nav>
+<main>
+  <h1>Symptom Identifier</h1>
+  <p class="sub">A short check-in to help you understand how you've been feeling. Answer honestly — there are no right or wrong responses.</p>
+  <div class="disclaimer">⚠️ This is <strong>not a clinical diagnosis</strong>. It's a self-awareness tool only. If you're concerned, please speak with a qualified professional or use the helplines on the <a href="matters-of-the-mind.html#helplines" style="color:var(--mid);font-weight:700">main page</a>.</div>
+
+  <div class="prog-label"><span id="prog-text">Question 0 of 5</span><span id="prog-pct">0%</span></div>
+  <div class="prog-wrap"><div id="prog-fill"></div></div>
+
+  <div class="q-wrap">
+    <div class="q-block" id="q1">
+      <div class="q-num">Question 1 of 5</div>
+      <p class="q-text">Over the past two weeks, how often have you felt little interest or pleasure in things you normally enjoy?</p>
+      <div class="opts">
+        <button class="opt" data-q="1" data-v="0" onclick="pick(this)">Not at all</button>
+        <button class="opt" data-q="1" data-v="1" onclick="pick(this)">Several days</button>
+        <button class="opt" data-q="1" data-v="2" onclick="pick(this)">More than half the days</button>
+        <button class="opt" data-q="1" data-v="3" onclick="pick(this)">Nearly every day</button>
+      </div>
+    </div>
+    <div class="q-block" id="q2">
+      <div class="q-num">Question 2 of 5</div>
+      <p class="q-text">How often have you felt down, hopeless, or like things won't get better?</p>
+      <div class="opts">
+        <button class="opt" data-q="2" data-v="0" onclick="pick(this)">Not at all</button>
+        <button class="opt" data-q="2" data-v="1" onclick="pick(this)">Several days</button>
+        <button class="opt" data-q="2" data-v="2" onclick="pick(this)">More than half the days</button>
+        <button class="opt" data-q="2" data-v="3" onclick="pick(this)">Nearly every day</button>
+      </div>
+    </div>
+    <div class="q-block" id="q3">
+      <div class="q-num">Question 3 of 5</div>
+      <p class="q-text">How often have you had trouble sleeping — too little, too much, or disturbed sleep?</p>
+      <div class="opts">
+        <button class="opt" data-q="3" data-v="0" onclick="pick(this)">Not at all</button>
+        <button class="opt" data-q="3" data-v="1" onclick="pick(this)">Several days</button>
+        <button class="opt" data-q="3" data-v="2" onclick="pick(this)">More than half the days</button>
+        <button class="opt" data-q="3" data-v="3" onclick="pick(this)">Nearly every day</button>
+      </div>
+    </div>
+    <div class="q-block" id="q4">
+      <div class="q-num">Question 4 of 5</div>
+      <p class="q-text">How often have you felt nervous, anxious, or on edge?</p>
+      <div class="opts">
+        <button class="opt" data-q="4" data-v="0" onclick="pick(this)">Not at all</button>
+        <button class="opt" data-q="4" data-v="1" onclick="pick(this)">Several days</button>
+        <button class="opt" data-q="4" data-v="2" onclick="pick(this)">More than half the days</button>
+        <button class="opt" data-q="4" data-v="3" onclick="pick(this)">Nearly every day</button>
+      </div>
+    </div>
+    <div class="q-block" id="q5">
+      <div class="q-num">Question 5 of 5</div>
+      <p class="q-text">How often have you had trouble concentrating on everyday tasks — reading, work, or conversations?</p>
+      <div class="opts">
+        <button class="opt" data-q="5" data-v="0" onclick="pick(this)">Not at all</button>
+        <button class="opt" data-q="5" data-v="1" onclick="pick(this)">Several days</button>
+        <button class="opt" data-q="5" data-v="2" onclick="pick(this)">More than half the days</button>
+        <button class="opt" data-q="5" data-v="3" onclick="pick(this)">Nearly every day</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-row">
+    <button class="submit-btn" onclick="submit()">See My Results</button>
+    <button class="reset-btn" onclick="reset()">Start Over</button>
+  </div>
+
+  <div id="result">
+    <div id="result-card" class="result-card">
+      <div class="result-head">
+        <span class="result-icon" id="r-icon"></span>
+        <h2 id="r-title"></h2>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-track"><div class="gauge-fill" id="gauge-fill"></div></div>
+        <div class="gauge-score" id="gauge-score"></div>
+      </div>
+      <p class="result-body" id="r-body"></p>
+      <div class="result-advice" id="r-advice"></div>
+      <div class="ra-row" id="r-actions"></div>
+    </div>
+  </div>
+</main>
+<script>
+function pick(btn){
+  document.querySelectorAll(`.opt[data-q="${btn.dataset.q}"]`).forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('q'+btn.dataset.q).classList.add('answered');
+  updateProg();
+}
+function updateProg(){
+  let answered=0;
+  for(let i=1;i<=5;i++)if(document.querySelector(`.opt[data-q="${i}"].on`))answered++;
+  const pct=Math.round(answered/5*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-text').textContent=`Question ${answered} of 5`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+function submit(){
+  let score=0,answered=0;
+  for(let i=1;i<=5;i++){const s=document.querySelector(`.opt[data-q="${i}"].on`);if(s){score+=+s.dataset.v;answered++}}
+  if(answered<5){alert('Please answer all 5 questions to see your results.');return}
+  const maxScore=15;
+  const pct=Math.round(score/maxScore*100);
+  const rc=document.getElementById('result-card');
+  const res=document.getElementById('result');
+  res.style.display='block';
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{document.getElementById('gauge-fill').style.width=pct+'%'},200);
+  document.getElementById('gauge-score').textContent=`${score}/${maxScore}`;
+  if(score<=4){
+    rc.className='result-card low';
+    document.getElementById('r-icon').textContent='🌿';
+    document.getElementById('r-title').textContent='You seem to be doing reasonably well';
+    document.getElementById('r-body').textContent='Your responses suggest you\'re managing fairly well overall. That\'s worth acknowledging. Even so, regular check-ins and small acts of self-care are always valuable — what we don\'t notice can sometimes build quietly over time.';
+    document.getElementById('r-advice').textContent='Consider building a simple daily habit: a mood log, a few minutes of journaling, or a short breathing session. Consistency matters more than duration.';
+    document.getElementById('r-actions').innerHTML=`<a href="mood-tracker.html" target="_blank" class="ra solid">Open Mood Tracker</a><a href="journal.html" target="_blank" class="ra outline">Open Journal</a><a href="breathing.html" target="_blank" class="ra outline">Try Breathing</a>`;
+  } else if(score<=9){
+    rc.className='result-card mid';
+    document.getElementById('r-icon').textContent='🌤️';
+    document.getElementById('r-title').textContent='You may be experiencing some difficulties';
+    document.getElementById('r-body').textContent='Your responses suggest a moderate level of distress across several areas. This is more common than most people realise — and it\'s a signal worth paying attention to rather than pushing through alone.';
+    document.getElementById('r-advice').textContent='Consider speaking with a counsellor, or exploring one of the support apps listed on the main page. The breathing and journaling tools can also help in the meantime. You don\'t have to be in crisis to deserve support.';
+    document.getElementById('r-actions').innerHTML=`<a href="matters-of-the-mind.html#helplines" class="ra solid">View Helplines</a><a href="breathing.html" target="_blank" class="ra outline">Try Breathing</a><a href="journal.html" target="_blank" class="ra outline">Write in Journal</a>`;
+  } else {
+    rc.className='result-card hi';
+    document.getElementById('r-icon').textContent='💛';
+    document.getElementById('r-title').textContent='It may help to speak with someone';
+    document.getElementById('r-body').textContent='Your responses indicate significant distress across multiple areas. This is not a diagnosis — but it is a meaningful signal that you deserve support right now. Reaching out is a sign of strength, not weakness.';
+    document.getElementById('r-advice').textContent='Please consider contacting one of the helplines below. They are free, confidential, and staffed by people who genuinely want to help — no matter how small or large the problem feels.';
+    document.getElementById('r-actions').innerHTML=`<a href="matters-of-the-mind.html#helplines" class="ra solid">View All Helplines</a><a href="tel:+919152987821" class="ra call">📞 Call iCall Now</a><a href="tel:+919820466627" class="ra outline">📞 Call AASRA</a>`;
+  }
+}
+function reset(){
+  document.querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.q-block').forEach(x=>x.classList.remove('answered'));
+  document.getElementById('result').style.display='none';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('prog-text').textContent='Question 0 of 5';
+  document.getElementById('prog-pct').textContent='0%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

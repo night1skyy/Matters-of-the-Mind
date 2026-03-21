@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Journal — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7fbfb;--deep:#0D5C63;--mid:#44A1A0;--light:#78CDD7;--dark2:#247B7B;--ink:#1a3d40;--muted:#4a7a7d;--w:#fff;--bdr:rgba(68,161,160,.18);--bdr2:rgba(68,161,160,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink)}
+nav{position:relative;z-index:99;display:flex;align-items:center;justify-content:space-between;padding:.8rem 2rem;background:rgba(247,251,251,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.logo{font-family:'Fraunces',serif;font-weight:900;font-size:1rem;color:var(--deep);text-decoration:none}.logo span{color:var(--mid)}
+.badge{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:rgba(68,161,160,.1);border:1.5px solid var(--bdr);padding:.2rem .7rem;border-radius:20px}
+.back{font-size:.74rem;font-weight:700;color:var(--muted);text-decoration:none;border:1.5px solid var(--bdr);padding:.28rem .8rem;border-radius:6px;transition:all .2s}.back:hover{color:var(--deep);border-color:var(--bdr2)}
+.app{display:flex;height:calc(100vh - 53px);overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:290px;flex-shrink:0;background:var(--w);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.sb-top{padding:1.1rem 1.3rem;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.sb-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.sb-title{font-family:'Fraunces',serif;font-weight:800;font-size:1.05rem;color:var(--deep)}
+.new-btn{background:var(--deep);color:#fff;border:none;padding:.36rem 1rem;border-radius:6px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.74rem;cursor:pointer;letter-spacing:.04em;transition:background .2s}
+.new-btn:hover{background:var(--dark2)}
+#jsearch{width:100%;padding:.48rem .8rem;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.82rem;color:var(--ink);background:var(--bg);outline:none;transition:border-color .2s}
+#jsearch:focus{border-color:var(--mid)}
+#jsearch::placeholder{color:rgba(68,120,122,.4)}
+.elist{overflow-y:auto;flex:1;padding:.6rem}
+.je{padding:.9rem 1rem;border-radius:10px;border-left:3px solid rgba(68,161,160,.3);cursor:pointer;transition:all .2s;margin-bottom:.48rem;background:#fafefe}
+.je:hover{background:#eef8f8;border-left-color:var(--mid)}
+.je.on{background:rgba(68,161,160,.1);border-left-color:var(--deep)}
+.je-mood{font-size:.88rem;margin-bottom:.18rem}
+.je-title{font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;color:var(--deep)}
+.je-date{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:.05rem}
+.je-pv{font-size:.74rem;color:var(--muted);line-height:1.5;margin-top:.18rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.je-hdr{display:flex;justify-content:space-between;align-items:flex-start}
+.je-del{background:none;border:none;cursor:pointer;color:rgba(68,120,122,.28);font-size:.74rem;padding:.08rem .22rem;border-radius:3px;transition:color .15s;flex-shrink:0}
+.je-del:hover{color:#c03030}
+.no-entries{text-align:center;padding:3rem 1rem;font-size:.86rem;color:var(--muted);font-style:italic;line-height:1.7}
+
+/* EDITOR */
+.editor{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ed-top{padding:1.1rem 1.8rem;border-bottom:1px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.ed-mode{font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid)}
+.ed-btns{display:flex;gap:.38rem;margin-left:auto}
+.eb{padding:.3rem .78rem;border-radius:5px;border:1.5px solid var(--bdr);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;cursor:pointer;transition:all .18s;letter-spacing:.04em}
+.eb:hover{color:var(--deep);border-color:var(--bdr2)}
+.eb.p{background:var(--deep);color:#fff;border-color:var(--deep)}.eb.p:hover{background:var(--dark2)}
+.eb.d{border-color:rgba(200,60,60,.25);color:rgba(180,50,50,.5)}.eb.d:hover{background:rgba(200,60,60,.08);color:#c03030}
+
+.ed-meta{padding:1rem 1.8rem;border-bottom:1px solid rgba(68,161,160,.1);flex-shrink:0;display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center}
+.mood-row{display:flex;gap:.32rem;align-items:center}
+.mmb{font-size:1.3rem;background:#f2fafa;border:2px solid transparent;border-radius:8px;padding:.3rem .4rem;cursor:pointer;transition:all .18s}
+.mmb:hover{border-color:var(--mid);transform:scale(1.1)}
+.mmb.on{border-color:var(--deep);background:rgba(68,161,160,.15)}
+#je-title{width:100%;padding:.58rem .85rem;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;color:var(--ink);background:var(--bg);outline:none;transition:border-color .2s}
+#je-title:focus{border-color:var(--mid)}
+#je-title::placeholder{font-family:'Nunito',sans-serif;font-weight:400;font-size:.9rem;color:rgba(68,120,122,.4)}
+.date-badge{font-size:.68rem;font-weight:700;color:var(--muted);white-space:nowrap;background:rgba(68,161,160,.1);padding:.26rem .65rem;border-radius:5px}
+
+/* writing prompt banner */
+.prompt-banner{margin:.5rem 1.8rem;padding:.8rem 1.1rem;background:#fffbec;border:1.5px solid #f0d468;border-radius:10px;display:flex;align-items:flex-start;gap:.7rem;flex-shrink:0}
+.prompt-icon{font-size:1.1rem;flex-shrink:0}
+.prompt-text{font-size:.84rem;color:#6a5200;line-height:1.6;flex:1}
+.prompt-text strong{color:#5a4200;display:block;margin-bottom:.15rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.prompt-next{background:none;border:1.5px solid #d4a820;border-radius:5px;padding:.22rem .62rem;font-size:.72rem;font-weight:700;color:#8a6400;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .18s;flex-shrink:0}
+.prompt-next:hover{background:#fff3c0}
+
+.secs-wrap{flex:1;overflow-y:auto;padding:1rem 1.8rem}
+.sec{background:var(--w);border:1.5px solid var(--bdr);border-radius:11px;padding:1.1rem;margin-bottom:.85rem;position:relative;transition:border-color .2s}
+.sec:hover{border-color:rgba(68,161,160,.3)}
+.sec-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--mid);background:transparent;border:none;border-bottom:1.5px dashed rgba(68,161,160,.3);outline:none;font-family:'Nunito',sans-serif;width:120px;padding:0;margin-bottom:.32rem;display:block;cursor:text}
+.sec-lbl:focus{border-color:var(--mid)}
+.sec-del{position:absolute;top:.75rem;right:.75rem;background:none;border:none;cursor:pointer;color:rgba(68,120,122,.25);font-size:.74rem;padding:.1rem .28rem;border-radius:3px;transition:color .15s}
+.sec-del:hover{color:#c03030}
+.sec-body{width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:.9rem;color:var(--ink);line-height:1.78;resize:none;outline:none;min-height:52px}
+
+.add-row{flex-shrink:0;padding:.8rem 1.8rem;border-top:1px solid rgba(68,161,160,.1);background:rgba(247,251,251,.95);display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
+.add-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(68,120,122,.45);align-self:center}
+.addbtn{padding:.22rem .62rem;border-radius:5px;border:1.5px dashed rgba(68,161,160,.28);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;cursor:pointer;transition:all .18s}
+.addbtn:hover{background:rgba(68,161,160,.1);color:var(--deep);border-color:var(--mid);border-style:solid}
+.addcustom{padding:.22rem .62rem;border-radius:5px;border:1.5px dashed rgba(68,161,160,.38);background:rgba(68,161,160,.06);color:var(--mid);font-family:'Nunito',sans-serif;font-weight:700;font-size:.7rem;cursor:pointer;transition:all .18s}
+.addcustom:hover{background:rgba(68,161,160,.15);border-style:solid}
+
+.empty-ed{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:2rem}
+.empty-ed .ei{font-size:3rem;margin-bottom:1rem;opacity:.5}
+.empty-ed h3{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;color:var(--muted);margin-bottom:.5rem}
+.empty-ed p{font-size:.9rem;line-height:1.7}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--deep);color:#fff;padding:.55rem 1.15rem;border-radius:8px;font-size:.8rem;font-weight:700;z-index:999;opacity:0;transform:translateY(7px);transition:opacity .28s,transform .28s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(68,161,160,.25);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<nav>
+  <a href="matters-of-the-mind.html" class="logo">Matters of the <span>Mind</span></a>
+  <span class="badge">📔 Journal</span>
+  <a href="matters-of-the-mind.html" class="back">← Back</a>
+</nav>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="sb-row">
+        <span class="sb-title">Entries</span>
+        <button class="new-btn" onclick="newEntry()">+ New</button>
+      </div>
+      <input type="text" id="jsearch" placeholder="Search entries…" oninput="renderList()"/>
+    </div>
+    <div class="elist" id="elist"><div class="no-entries">No entries yet.<br>Click <strong>+ New</strong> to begin.</div></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor" id="editor">
+    <!-- Empty state -->
+    <div class="empty-ed" id="empty-state">
+      <div class="ei">📔</div>
+      <h3>Your journal awaits</h3>
+      <p>Click <strong style="color:var(--deep)">+ New</strong> in the sidebar to create your first entry.<br>Everything stays private in your browser.</p>
+    </div>
+    <!-- Active editor (hidden until entry created/loaded) -->
+    <div id="ed-content" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+      <div class="ed-top">
+        <span class="ed-mode" id="ed-mode">New Entry</span>
+        <div class="ed-btns">
+          <button class="eb p" onclick="saveEntry()">Save</button>
+          <button class="eb" onclick="newEntry()">New</button>
+          <button class="eb d" id="del-btn" onclick="deleteEntry()" style="display:none">Delete</button>
+        </div>
+      </div>
+      <div class="ed-meta">
+        <div class="mood-row" title="Tag your mood for this entry">
+          <button class="mmb" data-m="😄">😄</button>
+          <button class="mmb" data-m="🙂">🙂</button>
+          <button class="mmb" data-m="😐">😐</button>
+          <button class="mmb" data-m="😔">😔</button>
+          <button class="mmb" data-m="😢">😢</button>
+          <button class="mmb" data-m="😰">😰</button>
+          <button class="mmb" data-m="🤩">🤩</button>
+          <button class="mmb" data-m="😌">😌</button>
+        </div>
+        <input type="text" id="je-title" placeholder="Give this entry a title…"/>
+        <span class="date-badge" id="date-badge"></span>
+      </div>
+      <div class="prompt-banner" id="prompt-banner">
+        <span class="prompt-icon">✏️</span>
+        <div class="prompt-text"><strong>Writing prompt</strong><span id="prompt-text">What's one thing you're grateful for today?</span></div>
+        <button class="prompt-next" onclick="nextPrompt()">Next →</button>
+      </div>
+      <div class="secs-wrap" id="secs-wrap"></div>
+      <div class="add-row">
+        <span class="add-lbl">Add section:</span>
+        <button class="addbtn" onclick="addSec('Thoughts')">Thoughts</button>
+        <button class="addbtn" onclick="addSec('What happened')">What happened</button>
+        <button class="addbtn" onclick="addSec('Gratitude')">Gratitude</button>
+        <button class="addbtn" onclick="addSec('Feelings')">Feelings</button>
+        <button class="addbtn" onclick="addSec('Goals')">Goals</button>
+        <button class="addbtn" onclick="addSec('Reflection')">Reflection</button>
+        <button class="addcustom" onclick="addCustom()">+ Custom…</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PROMPTS=['What\'s one thing you\'re grateful for today?','Describe your mood in three words.','What would make tomorrow better than today?','What\'s something that\'s been on your mind lately?','Write about a small moment that made you smile.','What\'s one thing you\'d like to let go of?','How did you take care of yourself today?','What are you looking forward to?','Write about a challenge you overcame recently.','What do you need more of right now?','Describe your ideal day in detail.','What\'s something you\'re proud of this week?','Who made you feel good recently, and why?','What fear would you like to face?','Write a letter to your future self.'];
+let pIdx=Math.floor(Math.random()*PROMPTS.length);
+function nextPrompt(){pIdx=(pIdx+1)%PROMPTS.length;document.getElementById('prompt-text').textContent=PROMPTS[pIdx]}
+document.getElementById('prompt-text').textContent=PROMPTS[pIdx];
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+function uid(){return Math.random().toString(36).slice(2,10)}
+let cid=null,secs=[],mood=null;
+document.querySelectorAll('.mmb').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.mmb').forEach(x=>x.classList.remove('on'));b.classList.add('on');mood=b.dataset.m}));
+function showEditor(){document.getElementById('empty-state').style.display='none';const e=document.getElementById('ed-content');e.style.display='flex';e.style.flexDirection='column';e.style.flex='1';e.style.overflow='hidden'}
+function newEntry(){
+  cid=null;mood=null;secs=[];
+  document.getElementById('je-title').value='';
+  document.getElementById('date-badge').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('ed-mode').textContent='New Entry';
+  document.getElementById('del-btn').style.display='none';
+  document.querySelectorAll('.mmb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.je').forEach(x=>x.classList.remove('on'));
+  secs=[{id:uid(),label:'Thoughts',body:''}];renderSecs();showEditor();
+  setTimeout(()=>document.querySelectorAll('.sec-body')[0]?.focus(),80);
+}
+function addSec(lbl){secs.push({id:uid(),label:lbl,body:''});renderSecs();const all=document.querySelectorAll('.sec-body');all[all.length-1]?.focus()}
+function addCustom(){const l=prompt('Section name:','');if(l?.trim())addSec(l.trim())}
+function remSec(id){secs=secs.filter(s=>s.id!==id);renderSecs()}
+function updL(id,v){const s=secs.find(x=>x.id===id);if(s)s.label=v}
+function updB(id,v){const s=secs.find(x=>x.id===id);if(s)s.body=v;autoH()}
+function autoH(){document.querySelectorAll('.sec-body').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px'})}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function renderSecs(){
+  document.getElementById('secs-wrap').innerHTML=secs.map(s=>`
+    <div class="sec"><input class="sec-lbl" value="${esc(s.label)}" onchange="updL('${s.id}',this.value)"/>${secs.length>1?`<button class="sec-del" onclick="remSec('${s.id}')">✕</button>`:''}
+    <textarea class="sec-body" placeholder="Write here…" oninput="updB('${s.id}',this.value)">${esc(s.body)}</textarea></div>`).join('');
+  autoH();
+}
+function saveEntry(){
+  const title=document.getElementById('je-title').value.trim()||'Untitled';
+  if(!secs.some(s=>s.body.trim())){toast('Write something first 📝');return}
+  const all=JSON.parse(localStorage.getItem('motm-journal')||'[]');
+  const now=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  if(cid){const i=all.findIndex(e=>e.id===cid);if(i>=0)all[i]={...all[i],title,mood,sections:[...secs],updated:now}}
+  else{const ne={id:uid(),title,mood,sections:[...secs],created:now,updated:now};all.unshift(ne);cid=ne.id}
+  localStorage.setItem('motm-journal',JSON.stringify(all));
+  document.getElementById('ed-mode').textContent='Editing';
+  document.getElementById('del-btn').style.display='';
+  renderList();toast('Saved ✓');
+}
+function loadEntry(id){
+  const all=JSON.parse(localStorage.getItem('motm-journal')||'[]');
+  const e=all.find(x=>x.id===id);if(!e)return;
+  cid=id;mood=e.mood||null;
+  document.getElementById('je-title').value=e.title||'';
+  document.getElementById('date-badge').textContent=e.created||'';
+  document.getElementById('ed-mode').textContent='Editing';
+  document.getElementById('del-btn').style.display='';
+  document.querySelectorAll('.mmb').forEach(x=>x.classList.toggle('on',x.dataset.m===mood));
+  secs=(e.sections||[]).map(s=>({...s}));renderSecs();showEditor();
+  document.querySelectorAll('.je').forEach(x=>x.classList.toggle('on',x.dataset.id===id));
+}
+function deleteEntry(){
+  if(!cid||!confirm('Delete this entry?'))return;
+  const all=JSON.parse(localStorage.getItem('motm-journal')||'[]');
+  localStorage.setItem('motm-journal',JSON.stringify(all.filter(e=>e.id!==cid)));
+  cid=null;secs=[];mood=null;
+  document.getElementById('empty-state').style.display='flex';
+  document.getElementById('ed-content').style.display='none';
+  renderList();toast('Deleted');
+}
+function deleteById(id,ev){
+  ev.stopPropagation();if(!confirm('Delete?'))return;
+  const all=JSON.parse(localStorage.getItem('motm-journal')||'[]');
+  localStorage.setItem('motm-journal',JSON.stringify(all.filter(e=>e.id!==id)));
+  if(cid===id){cid=null;secs=[];mood=null;document.getElementById('empty-state').style.display='flex';document.getElementById('ed-content').style.display='none'}
+  renderList();toast('Deleted');
+}
+function renderList(){
+  let all=JSON.parse(localStorage.getItem('motm-journal')||'[]');
+  const q=(document.getElementById('jsearch')?.value||'').toLowerCase();
+  if(q)all=all.filter(e=>e.title.toLowerCase().includes(q)||(e.sections||[]).some(s=>s.body.toLowerCase().includes(q)));
+  const el=document.getElementById('elist');
+  if(!all.length){el.innerHTML='<div class="no-entries">No entries yet.<br>Click <strong>+ New</strong> to begin.</div>';return}
+  el.innerHTML=all.map(e=>{const pv=(e.sections||[]).map(s=>s.body).join(' ').trim().slice(0,80);
+    return`<div class="je${e.id===cid?' on':''}" data-id="${e.id}" onclick="loadEntry('${e.id}')">
+      <div class="je-hdr"><div style="flex:1;min-width:0">
+        ${e.mood?`<div class="je-mood">${e.mood}</div>`:''}
+        <div class="je-title">${esc(e.title)}</div>
+        <div class="je-date">${e.created||''}${e.updated&&e.updated!==e.created?' · edited':''}</div>
+        ${pv?`<div class="je-pv">${esc(pv)}</div>`:''}
+      </div><button class="je-del" onclick="deleteById('${e.id}',event)">✕</button></div>
+    </div>`;
+  }).join('');
+}
+renderList();
+</script>
+</body>
+</html>

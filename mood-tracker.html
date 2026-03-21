@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mood Tracker — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7fbfb;--deep:#0D5C63;--mid:#44A1A0;--light:#78CDD7;--dark2:#247B7B;--ink:#1a3d40;--muted:#4a7a7d;--w:#fff;--bdr:rgba(68,161,160,.18);--bdr2:rgba(68,161,160,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+nav{position:sticky;top:0;z-index:99;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;background:rgba(247,251,251,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
+.logo{font-family:'Fraunces',serif;font-weight:900;font-size:1rem;color:var(--deep);text-decoration:none}.logo span{color:var(--mid)}
+.badge{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:rgba(68,161,160,.1);border:1.5px solid var(--bdr);padding:.2rem .7rem;border-radius:20px}
+.back{font-size:.74rem;font-weight:700;color:var(--muted);text-decoration:none;border:1.5px solid var(--bdr);padding:.28rem .8rem;border-radius:6px;transition:all .2s}.back:hover{color:var(--deep);border-color:var(--bdr2)}
+main{max-width:960px;margin:0 auto;padding:2.8rem 2rem 5rem}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:2.4rem;color:var(--deep);margin-bottom:.5rem}
+.sub{font-size:.98rem;color:var(--muted);line-height:1.8;margin-bottom:2.2rem;max-width:480px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;margin-bottom:1.3rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:1.3rem}
+.panel{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:1.6rem;box-shadow:0 2px 14px rgba(68,161,160,.07)}
+.ptitle{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:.25rem}
+.pdesc{font-size:.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.58}
+.mgrid{display:flex;gap:.42rem;flex-wrap:wrap;margin-bottom:1rem}
+.mb{background:#f2fafa;border:2px solid transparent;border-radius:12px;padding:.5rem .65rem;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:.18rem;min-width:55px;font-family:'Nunito',sans-serif}
+.mb:hover{border-color:var(--mid);transform:scale(1.1);box-shadow:0 5px 15px rgba(68,161,160,.18)}
+.mb.on{border-color:var(--deep);background:rgba(68,161,160,.12);box-shadow:0 4px 14px rgba(13,92,99,.15)}
+.me{font-size:1.35rem}.ml{font-size:.58rem;font-weight:700;color:var(--muted)}
+.row-lbl{font-size:.7rem;font-weight:700;color:var(--muted);margin-bottom:.38rem;display:block}
+.irow{display:flex;gap:.38rem;margin-bottom:.9rem}
+.ibtn{padding:.28rem .82rem;border-radius:20px;border:1.5px solid var(--bdr);background:transparent;font-family:'Nunito',sans-serif;font-weight:700;font-size:.76rem;color:var(--muted);cursor:pointer;transition:all .18s}
+.ibtn:hover{border-color:var(--mid);color:var(--deep)}.ibtn.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.tags{display:flex;gap:.38rem;flex-wrap:wrap;margin-bottom:.9rem}
+.tg{padding:.24rem .68rem;border-radius:20px;border:1.5px dashed rgba(68,161,160,.32);background:transparent;font-family:'Nunito',sans-serif;font-weight:700;font-size:.72rem;color:var(--muted);cursor:pointer;transition:all .18s}
+.tg:hover{background:rgba(68,161,160,.09);border-style:solid;color:var(--deep)}
+.tg.on{background:rgba(68,161,160,.15);border-color:var(--mid);color:var(--deep);border-style:solid}
+textarea,input[type=text]{width:100%;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;color:var(--ink);background:#fafefe;outline:none;transition:border-color .2s;padding:.65rem .88rem}
+textarea{resize:none;min-height:52px}
+textarea:focus,input[type=text]:focus{border-color:var(--mid)}
+textarea::placeholder{color:rgba(68,120,122,.4)}
+.rbtns{display:flex;gap:.5rem;margin-top:.7rem}
+.tbp{padding:.46rem 1.4rem;border-radius:7px;border:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;background:var(--deep);color:#fff;letter-spacing:.04em;transition:all .2s}
+.tbp:hover{background:var(--dark2);transform:translateY(-1px)}
+.tbg{padding:.44rem 1.2rem;border-radius:7px;border:1.5px solid var(--bdr);font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
+.tbg:hover{border-color:var(--bdr2);color:var(--deep)}
+.streak{background:linear-gradient(135deg,var(--deep),var(--dark2));border-radius:14px;padding:1.5rem;color:#fff;text-align:center}
+.s-fire{font-size:2rem;display:block;margin-bottom:.4rem}
+.s-num{font-family:'Fraunces',serif;font-weight:900;font-size:2.8rem;color:var(--light);line-height:1}
+.s-lbl{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:.28rem}
+.s-msg{font-size:.78rem;color:rgba(255,255,255,.65);margin-top:.45rem}
+.insight{background:#fffbec;border:1.5px solid #f0d468;border-radius:14px;padding:1.3rem 1.5rem}
+.insight h4{font-family:'Fraunces',serif;font-weight:800;font-size:.96rem;color:#7a5e00;margin-bottom:.38rem}
+.insight p{font-size:.86rem;color:#6a5200;line-height:1.65}
+.stat{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:1.3rem;text-align:center;box-shadow:0 2px 10px rgba(68,161,160,.06)}
+.stat-val{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;color:var(--deep);line-height:1;margin-bottom:.25rem}
+.stat-lbl{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.chart-panel{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:1.6rem;margin-bottom:1.3rem;box-shadow:0 2px 12px rgba(68,161,160,.07)}
+.chart-panel h3{font-family:'Fraunces',serif;font-weight:800;font-size:1.1rem;color:var(--deep);margin-bottom:.22rem}
+.chart-desc{font-size:.78rem;color:var(--muted);margin-bottom:1.2rem}
+#chart-wrap{display:flex;align-items:flex-end;gap:4px;height:110px;padding:2px 2px 0;overflow-x:auto;margin-bottom:.8rem}
+.cc{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex-shrink:0;cursor:default}
+.cb{border-radius:4px 4px 0 0;min-height:4px;width:20px;transition:opacity .2s}.cb:hover{opacity:.7}
+.cem{font-size:.68rem}.cdl{font-size:.52rem;color:var(--muted);white-space:nowrap}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;margin-top:.5rem}
+.li{display:flex;align-items:center;gap:.38rem;font-size:.74rem;color:var(--muted)}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.hist{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:1.6rem;box-shadow:0 2px 12px rgba(68,161,160,.07)}
+.hist-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem}
+.hist-hdr h2{font-family:'Fraunces',serif;font-weight:800;font-size:1.1rem;color:var(--deep)}
+.hctrls{display:flex;gap:.6rem;align-items:center}
+select{padding:.3rem .7rem;border:1.5px solid var(--bdr);border-radius:7px;font-family:'Nunito',sans-serif;font-size:.78rem;color:var(--ink);background:#fafefe;outline:none;cursor:pointer}
+.clr{background:transparent;border:1.5px solid rgba(200,60,60,.28);border-radius:7px;padding:.28rem .72rem;font-size:.7rem;font-weight:700;color:rgba(180,50,50,.6);cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s}
+.clr:hover{border-color:rgba(200,60,60,.55);color:rgba(180,50,50,.9)}
+#entries{display:flex;flex-direction:column;gap:.6rem;max-height:400px;overflow-y:auto}
+.en{display:flex;gap:.82rem;align-items:flex-start;padding:.82rem 1rem;background:#f5fbfb;border-radius:10px;border-left:3px solid var(--mid);transition:all .2s}
+.en:hover{border-left-color:var(--deep)}
+.emo{font-size:1.5rem;flex-shrink:0}
+.ebody{flex:1;min-width:0}
+.etop{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;margin-bottom:.18rem}
+.edate{font-size:.63rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mid)}
+.elbl{font-size:.84rem;font-weight:700;color:var(--deep)}
+.eint{font-size:.66rem;font-weight:700;padding:.1rem .52rem;border-radius:20px;background:rgba(68,161,160,.12);color:var(--dark2)}
+.etags{display:flex;gap:.32rem;flex-wrap:wrap;margin:.22rem 0}
+.etag{font-size:.64rem;font-weight:700;padding:.08rem .5rem;border-radius:20px;background:rgba(68,161,160,.1);color:var(--muted)}
+.enote{font-size:.84rem;color:var(--muted);line-height:1.55;margin-top:.18rem}
+.edel{background:none;border:none;cursor:pointer;color:rgba(68,120,122,.3);font-size:.78rem;padding:.1rem .28rem;border-radius:4px;transition:color .15s;flex-shrink:0}
+.edel:hover{color:#c03030}
+.empty{text-align:center;padding:2.5rem;font-size:.9rem;color:var(--muted);font-style:italic}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--deep);color:#fff;padding:.55rem 1.15rem;border-radius:8px;font-size:.8rem;font-weight:700;z-index:999;opacity:0;transform:translateY(7px);transition:opacity .28s,transform .28s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(68,161,160,.25);border-radius:2px}
+@media(max-width:680px){.g2,.g3{grid-template-columns:1fr}main{padding:2rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<nav>
+  <a href="matters-of-the-mind.html" class="logo">Matters of the <span>Mind</span></a>
+  <span class="badge">📊 Mood Tracker</span>
+  <a href="matters-of-the-mind.html" class="back">← Back</a>
+</nav>
+<main>
+  <h1>Daily Mood Tracker</h1>
+  <p class="sub">Log how you feel, spot patterns, build streaks, and discover what shapes your emotional life.</p>
+  <div class="g3">
+    <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total Entries</div></div>
+    <div class="stat"><div class="stat-val" id="st-avg">—</div><div class="stat-lbl">7-Day Avg Mood</div></div>
+    <div class="stat"><div class="stat-val" id="st-today">—</div><div class="stat-lbl">Today's Mood</div></div>
+  </div>
+  <div class="g2">
+    <div class="panel">
+      <p class="ptitle">How are you feeling?</p>
+      <p class="pdesc">Pick a mood, set intensity, tag influences, add a note.</p>
+      <div class="mgrid">
+        <button class="mb" data-m="😄" data-l="Great"      data-v="5" data-c="#22c55e"><span class="me">😄</span><span class="ml">Great</span></button>
+        <button class="mb" data-m="🙂" data-l="Good"       data-v="4" data-c="#86efac"><span class="me">🙂</span><span class="ml">Good</span></button>
+        <button class="mb" data-m="😌" data-l="Calm"       data-v="4" data-c="#67e8f9"><span class="me">😌</span><span class="ml">Calm</span></button>
+        <button class="mb" data-m="🤩" data-l="Excited"    data-v="5" data-c="#f472b6"><span class="me">🤩</span><span class="ml">Excited</span></button>
+        <button class="mb" data-m="😐" data-l="Neutral"    data-v="3" data-c="#94a3b8"><span class="me">😐</span><span class="ml">Neutral</span></button>
+        <button class="mb" data-m="😔" data-l="Low"        data-v="2" data-c="#fbbf24"><span class="me">😔</span><span class="ml">Low</span></button>
+        <button class="mb" data-m="😰" data-l="Anxious"    data-v="2" data-c="#fb923c"><span class="me">😰</span><span class="ml">Anxious</span></button>
+        <button class="mb" data-m="😤" data-l="Frustrated" data-v="2" data-c="#f87171"><span class="me">😤</span><span class="ml">Frustrated</span></button>
+        <button class="mb" data-m="😢" data-l="Sad"        data-v="1" data-c="#ef4444"><span class="me">😢</span><span class="ml">Sad</span></button>
+        <button class="mb" data-m="😴" data-l="Tired"      data-v="2" data-c="#a78bfa"><span class="me">😴</span><span class="ml">Tired</span></button>
+      </div>
+      <span class="row-lbl">Intensity</span>
+      <div class="irow">
+        <button class="ibtn" data-i="Slight">Slight</button>
+        <button class="ibtn on" data-i="Moderate">Moderate</button>
+        <button class="ibtn" data-i="Strong">Strong</button>
+      </div>
+      <span class="row-lbl">What influenced your mood?</span>
+      <div class="tags">
+        <button class="tg" data-t="😴 Sleep">😴 Sleep</button>
+        <button class="tg" data-t="💼 Work">💼 Work</button>
+        <button class="tg" data-t="👥 Social">👥 Social</button>
+        <button class="tg" data-t="🏃 Exercise">🏃 Exercise</button>
+        <button class="tg" data-t="🍎 Eating">🍎 Eating</button>
+        <button class="tg" data-t="🌿 Nature">🌿 Nature</button>
+        <button class="tg" data-t="📱 Screen">📱 Screen</button>
+        <button class="tg" data-t="☕ Caffeine">☕ Caffeine</button>
+        <button class="tg" data-t="🎵 Music">🎵 Music</button>
+        <button class="tg" data-t="💊 Meds">💊 Meds</button>
+      </div>
+      <textarea id="note" placeholder="What happened today? Anything on your mind? (optional)"></textarea>
+      <div class="rbtns">
+        <button class="tbp" onclick="save()">Save Entry ✓</button>
+        <button class="tbg" onclick="clear_()">Clear</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div class="streak">
+        <span class="s-fire">🔥</span>
+        <div class="s-num" id="s-num">0</div>
+        <div class="s-lbl">Day Streak</div>
+        <div class="s-msg" id="s-msg">Log today to start your streak!</div>
+      </div>
+      <div class="insight">
+        <h4>💡 Weekly Insight</h4>
+        <p id="insight">Log a few days to unlock your personalised insight.</p>
+      </div>
+    </div>
+  </div>
+  <div class="chart-panel">
+    <h3>30-day mood chart</h3>
+    <p class="chart-desc">Each bar is one logged day — hover for details. Colour-coded by mood type.</p>
+    <div id="chart-wrap"></div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:#22c55e"></div>Great/Excited</div>
+      <div class="li"><div class="ld" style="background:#67e8f9"></div>Good/Calm</div>
+      <div class="li"><div class="ld" style="background:#94a3b8"></div>Neutral</div>
+      <div class="li"><div class="ld" style="background:#fb923c"></div>Low/Anxious/Tired</div>
+      <div class="li"><div class="ld" style="background:#ef4444"></div>Sad/Frustrated</div>
+    </div>
+  </div>
+  <div class="hist">
+    <div class="hist-hdr">
+      <h2>Mood History</h2>
+      <div class="hctrls">
+        <select id="filter" onchange="renderEntries()">
+          <option value="">All entries</option>
+          <option value="5">Great / Excited</option>
+          <option value="4">Good / Calm</option>
+          <option value="3">Neutral</option>
+          <option value="2">Low / Anxious</option>
+          <option value="1">Sad</option>
+        </select>
+        <button class="clr" onclick="clearAll()">Clear all</button>
+      </div>
+    </div>
+    <div id="entries"></div>
+  </div>
+</main>
+<script>
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+let sel=null,intv='Moderate',tags=new Set();
+document.querySelectorAll('.mb').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');sel={e:b.dataset.m,l:b.dataset.l,v:+b.dataset.v,c:b.dataset.c}}));
+document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.ibtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');intv=b.dataset.i}));
+document.querySelectorAll('.tg').forEach(b=>b.addEventListener('click',()=>{b.classList.toggle('on');b.classList.contains('on')?tags.add(b.dataset.t):tags.delete(b.dataset.t)}));
+function clear_(){document.getElementById('note').value='';document.querySelectorAll('.mb,.tg').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.ibtn').forEach((b,i)=>{b.classList.toggle('on',i===1)});sel=null;tags=new Set();intv='Moderate'}
+function save(){
+  if(!sel){toast('Pick a mood first 👆');return}
+  const a=load();
+  a.unshift({e:sel.e,l:sel.l,v:sel.v,c:sel.c,i:intv,tags:[...tags],note:document.getElementById('note').value.trim(),date:new Date().toLocaleString(),ts:Date.now()});
+  localStorage.setItem('motm-mood',JSON.stringify(a));
+  clear_();render();toast('Saved! '+sel.e);
+}
+function del(idx){const a=load();a.splice(idx,1);localStorage.setItem('motm-mood',JSON.stringify(a));render()}
+function clearAll(){if(confirm('Delete ALL mood entries?')){localStorage.removeItem('motm-mood');render()}}
+function load(){return JSON.parse(localStorage.getItem('motm-mood')||'[]')}
+function render(){renderEntries();renderChart();renderStreak();renderInsight();renderStats()}
+function renderStats(){
+  const a=load();
+  document.getElementById('st-total').textContent=a.length;
+  const w=a.slice(0,7);
+  document.getElementById('st-avg').textContent=w.length?(w.reduce((s,m)=>s+m.v,0)/w.length).toFixed(1)+'★':'—';
+  const today=new Date().toDateString();
+  const td=a.filter(m=>new Date(m.ts).toDateString()===today);
+  document.getElementById('st-today').textContent=td.length?td[0].e:'—';
+}
+function renderEntries(){
+  const a=load();const fv=document.getElementById('filter').value;
+  const fil=fv?a.filter(m=>String(m.v)===fv):a;
+  const el=document.getElementById('entries');
+  if(!fil.length){el.innerHTML='<div class="empty">No entries yet — log your first mood above 👆</div>';return}
+  el.innerHTML=fil.map((m)=>`<div class="en">
+    <div class="emo">${m.e}</div>
+    <div class="ebody">
+      <div class="etop"><span class="edate">${m.date}</span><span class="elbl">${m.l}</span>${m.i?`<span class="eint">${m.i}</span>`:''}</div>
+      ${m.tags&&m.tags.length?`<div class="etags">${m.tags.map(t=>`<span class="etag">${t}</span>`).join('')}</div>`:''}
+      ${m.note?`<div class="enote">${m.note}</div>`:''}
+    </div>
+    <button class="edel" onclick="del(${a.indexOf(m)})">✕</button>
+  </div>`).join('');
+}
+function renderChart(){
+  const a=load();const w=document.getElementById('chart-wrap');
+  if(!a.length){w.innerHTML='<div style="font-size:.82rem;color:var(--muted);margin:auto;padding:2rem;font-style:italic">Log moods to see your chart ✨</div>';return}
+  w.innerHTML=a.slice(0,30).reverse().map(m=>{
+    const h=Math.max(6,Math.round((m.v/5)*100));
+    const d=m.date.split(',')[0];
+    return`<div class="cc"><div class="cb" style="height:${h}px;background:${m.c||'var(--mid)'}" title="${m.l}${m.i?' · '+m.i:''} · ${d}${m.note?' · '+m.note.slice(0,40):''}"></div><div class="cem">${m.e}</div><div class="cdl">${d.slice(0,5)}</div></div>`;
+  }).join('');
+}
+function renderStreak(){
+  const a=load();const days=new Set(a.map(m=>new Date(m.ts).toDateString()));
+  let streak=0;const d=new Date();
+  if(!days.has(d.toDateString()))d.setDate(d.getDate()-1);
+  while(days.has(d.toDateString())){streak++;d.setDate(d.getDate()-1)}
+  document.getElementById('s-num').textContent=streak;
+  const msgs=['Log today to start! 🌱','1 day — great start! 🌿','2 in a row! 💪','3 days strong! 🔥','4 days! Keep going!','5 days — you\'re building something real ✨','6 days! Almost a full week!','Full week! 🌟 Incredible!'];
+  document.getElementById('s-msg').textContent=streak<msgs.length?msgs[streak]:`${streak} days! You're on fire 🔥`;
+}
+function renderInsight(){
+  const a=load();const w=a.slice(0,7);
+  if(w.length<3){document.getElementById('insight').textContent='Log at least 3 days to unlock your personalised insight.';return}
+  const avg=(w.reduce((s,m)=>s+m.v,0)/w.length).toFixed(1);
+  const best=w.reduce((b,m)=>m.v>b.v?m:b,w[0]);
+  const worst=w.reduce((b,m)=>m.v<b.v?m:b,w[0]);
+  let txt=`Your 7-day average is ${avg}/5 — `;
+  if(+avg>=4)txt+='you\'ve been doing well 🌟. ';
+  else if(+avg>=3)txt+='things are fairly balanced. ';
+  else txt+='it\'s been a tough week — be kind to yourself. 💛 ';
+  txt+=`Best: ${best.l} ${best.e}. Lowest: ${worst.l} ${worst.e}.`;
+  const tc={};w.forEach(m=>(m.tags||[]).forEach(t=>{tc[t]=(tc[t]||0)+1}));
+  const top=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  if(top)txt+=` Top influence: ${top[0]}.`;
+  document.getElementById('insight').textContent=txt;
+}
+render();
+</script>
+</body>
+</html>

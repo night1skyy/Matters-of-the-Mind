@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Breathing — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7fbfb;--deep:#0D5C63;--mid:#44A1A0;--light:#78CDD7;--dark2:#247B7B;--ink:#1a3d40;--muted:#4a7a7d;--w:#fff;--bdr:rgba(68,161,160,.18);--bdr2:rgba(68,161,160,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+nav{position:sticky;top:0;z-index:99;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;background:rgba(247,251,251,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
+.logo{font-family:'Fraunces',serif;font-weight:900;font-size:1rem;color:var(--deep);text-decoration:none}.logo span{color:var(--mid)}
+.badge{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:rgba(68,161,160,.1);border:1.5px solid var(--bdr);padding:.2rem .7rem;border-radius:20px}
+.back{font-size:.74rem;font-weight:700;color:var(--muted);text-decoration:none;border:1.5px solid var(--bdr);padding:.28rem .8rem;border-radius:6px;transition:all .2s}.back:hover{color:var(--deep);border-color:var(--bdr2)}
+main{max-width:920px;margin:0 auto;padding:2.8rem 2rem 5rem}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:2.4rem;color:var(--deep);margin-bottom:.5rem}
+.sub{font-size:.98rem;color:var(--muted);line-height:1.8;margin-bottom:2.2rem;max-width:480px}
+
+/* technique cards */
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:2.2rem}
+.tc{background:var(--w);border:2px solid var(--bdr);border-radius:14px;padding:1.4rem;cursor:pointer;transition:all .22s;text-align:center}
+.tc:hover{border-color:var(--bdr2);box-shadow:0 6px 20px rgba(68,161,160,.12)}
+.tc.on{border-color:var(--deep);background:rgba(68,161,160,.07);box-shadow:0 6px 22px rgba(13,92,99,.14)}
+.tc h3{font-family:'Fraunces',serif;font-weight:800;font-size:1rem;color:var(--deep);margin-bottom:.38rem}
+.tc-pat{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);margin-bottom:.55rem}
+.tc p{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+/* main area */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.circle-area{display:flex;flex-direction:column;align-items:center;gap:1.4rem}
+
+/* animated circle */
+.circle-outer{position:relative;width:220px;height:220px}
+.ring{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(68,161,160,.15)}
+.ring-progress{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--mid) var(--p,0%), transparent 0%);opacity:.25;transition:none}
+#bc{width:220px;height:220px;border-radius:50%;background:linear-gradient(135deg,#edf9f9,#d8f0f2);border:2.5px solid rgba(68,161,160,.28);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:transform .2s,box-shadow .3s;position:relative;z-index:1}
+#bc.inhale{box-shadow:0 0 0 18px rgba(68,161,160,.1),0 0 0 36px rgba(68,161,160,.05)}
+#bc.exhale{box-shadow:none}
+#bctr{font-size:2.8rem;font-weight:900;color:var(--deep);font-family:'Fraunces',serif;line-height:1}
+#bph{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-top:.22rem}
+
+/* progress track */
+.prog-track{width:220px;height:6px;background:rgba(68,161,160,.15);border-radius:3px;overflow:hidden}
+#prog-fill{height:100%;background:var(--mid);border-radius:3px;width:0%;transition:width linear}
+
+.cycle-info{text-align:center}
+#cycles{font-size:.88rem;font-weight:700;color:var(--muted)}
+#total-time{font-size:.78rem;color:var(--muted);margin-top:.25rem}
+
+.start-btn{background:var(--deep);color:#fff;padding:.72rem 2.4rem;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.94rem;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+.start-btn:hover{background:var(--dark2);transform:translateY(-2px);box-shadow:0 8px 22px rgba(13,92,99,.2)}
+
+/* tips */
+.tips{display:flex;flex-direction:column;gap:.9rem}
+.tip{background:var(--w);border:1.5px solid var(--bdr);border-radius:12px;padding:1.15rem 1.3rem;display:flex;gap:.85rem;align-items:flex-start;transition:border-color .2s}
+.tip:hover{border-color:var(--bdr2)}
+.tip-icon{font-size:1.4rem;flex-shrink:0;margin-top:.05rem}
+.tip h4{font-family:'Fraunces',serif;font-weight:700;font-size:.95rem;color:var(--deep);margin-bottom:.28rem}
+.tip p{font-size:.86rem;color:var(--muted);line-height:1.68}
+
+/* session log */
+.log-panel{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:1.5rem;margin-top:1.8rem;box-shadow:0 2px 12px rgba(68,161,160,.07)}
+.log-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.log-hdr h3{font-family:'Fraunces',serif;font-weight:800;font-size:1.05rem;color:var(--deep)}
+.clr{background:transparent;border:1.5px solid rgba(200,60,60,.28);border-radius:6px;padding:.24rem .68rem;font-size:.7rem;font-weight:700;color:rgba(180,50,50,.55);cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s}
+.clr:hover{border-color:rgba(200,60,60,.5);color:rgba(180,50,50,.9)}
+#log-entries{display:flex;flex-direction:column;gap:.52rem;max-height:240px;overflow-y:auto}
+.log-en{display:flex;gap:.8rem;align-items:center;padding:.68rem .9rem;background:#f5fbfb;border-radius:8px;font-size:.84rem}
+.log-icon{font-size:1.2rem;flex-shrink:0}
+.log-body{flex:1}
+.log-title{font-weight:700;color:var(--deep)}
+.log-meta{font-size:.72rem;color:var(--muted)}
+.log-empty{text-align:center;font-size:.86rem;color:var(--muted);font-style:italic;padding:1.5rem}
+
+@media(max-width:680px){.tech-grid,.main-grid{grid-template-columns:1fr}main{padding:2rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="matters-of-the-mind.html" class="logo">Matters of the <span>Mind</span></a>
+  <span class="badge">🌬️ Breathing</span>
+  <a href="matters-of-the-mind.html" class="back">← Back</a>
+</nav>
+<main>
+  <h1>Guided Breathing</h1>
+  <p class="sub">Choose a technique and follow the animated circle. Even 3 minutes measurably lowers cortisol and calms your nervous system.</p>
+
+  <div class="tech-grid">
+    <div class="tc on" data-p="box" onclick="selectTech(this)">
+      <h3>Box Breathing</h3>
+      <div class="tc-pat">4 — 4 — 4 — 4</div>
+      <p>Inhale, hold, exhale, hold. Used by military and first responders to build calm focus under pressure.</p>
+    </div>
+    <div class="tc" data-p="478" onclick="selectTech(this)">
+      <h3>4-7-8 Breathing</h3>
+      <div class="tc-pat">4 — 7 — 8</div>
+      <p>Extended exhale activates the parasympathetic system. Ideal for sleep and acute anxiety relief.</p>
+    </div>
+    <div class="tc" data-p="eq" onclick="selectTech(this)">
+      <h3>Equal Breathing</h3>
+      <div class="tc-pat">5 — 5</div>
+      <p>Simple, symmetric, grounding. A perfect daily practice for general stress and emotional balance.</p>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="circle-area">
+      <div class="circle-outer">
+        <div class="ring-progress" id="ring-prog"></div>
+        <div class="ring"></div>
+        <div id="bc"><span id="bctr">—</span><div id="bph">Press Start</div></div>
+      </div>
+      <div class="prog-track"><div id="prog-fill"></div></div>
+      <div class="cycle-info">
+        <div id="cycles">0 cycles complete</div>
+        <div id="total-time"></div>
+      </div>
+      <button class="start-btn" id="startbtn" onclick="toggle()">Start</button>
+    </div>
+    <div class="tips">
+      <div class="tip"><div class="tip-icon">🧘</div><div><h4>Box Breathing (4-4-4-4)</h4><p>Inhale 4s → hold 4s → exhale 4s → hold 4s. Creates a steady rhythm that interrupts the stress response and restores clarity.</p></div></div>
+      <div class="tip"><div class="tip-icon">😴</div><div><h4>4-7-8 Breathing</h4><p>Inhale 4s → hold 7s → exhale 8s. The long exhale signals safety to your nervous system — very effective before sleep.</p></div></div>
+      <div class="tip"><div class="tip-icon">💆</div><div><h4>Equal Breathing (5-5)</h4><p>Inhale 5s → exhale 5s. Symmetric rhythm creates mental steadiness. A great first technique if you're new to breathwork.</p></div></div>
+      <div class="tip" style="background:#fffbec;border-color:#f0d468"><div class="tip-icon">💡</div><div><h4>Why it works</h4><p>Slow breathing activates your vagus nerve, reducing heart rate and cortisol. Regular daily practice over 2–4 weeks measurably improves baseline anxiety.</p></div></div>
+    </div>
+  </div>
+
+  <div class="log-panel">
+    <div class="log-hdr">
+      <h3>Session Log</h3>
+      <button class="clr" onclick="clearLog()">Clear log</button>
+    </div>
+    <div id="log-entries"><div class="log-empty">Complete a session to log it here.</div></div>
+  </div>
+</main>
+<script>
+const TECHS={
+  box:{steps:[{p:'Inhale',t:4},{p:'Hold',t:4},{p:'Exhale',t:4},{p:'Hold',t:4}],label:'Box Breathing'},
+  '478':{steps:[{p:'Inhale',t:4},{p:'Hold',t:7},{p:'Exhale',t:8}],label:'4-7-8 Breathing'},
+  eq:{steps:[{p:'Inhale',t:5},{p:'Exhale',t:5}],label:'Equal Breathing'}
+};
+let pat='box',on=false,timer=null,cycles=0,step=0,count=0,startTime=null,progTimer=null;
+function selectTech(el){
+  if(on)stop();
+  document.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');pat=el.dataset.p;
+  document.getElementById('bph').textContent='Press Start';
+  document.getElementById('bctr').textContent='—';
+  document.getElementById('cycles').textContent='0 cycles complete';
+  document.getElementById('total-time').textContent='';
+  document.getElementById('prog-fill').style.transition='none';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('ring-prog').style.setProperty('--p','0%');
+}
+function toggle(){on?stop():start()}
+function start(){
+  on=true;step=0;cycles=0;startTime=Date.now();
+  document.getElementById('startbtn').textContent='Stop';
+  runStep();
+}
+function stop(){
+  on=false;clearTimeout(timer);clearInterval(progTimer);
+  document.getElementById('startbtn').textContent='Start';
+  document.getElementById('bph').textContent='Press Start';
+  document.getElementById('bctr').textContent='—';
+  document.getElementById('bc').className='';
+  document.getElementById('bc').style.transform='scale(1)';
+  document.getElementById('prog-fill').style.transition='none';
+  document.getElementById('prog-fill').style.width='0%';
+  if(cycles>0){
+    const dur=Math.round((Date.now()-startTime)/1000);
+    logSession(TECHS[pat].label,cycles,dur);
+  }
+}
+function runStep(){
+  if(!on)return;
+  const s=TECHS[pat].steps[step];count=s.t;
+  document.getElementById('bph').textContent=s.p;
+  const bc=document.getElementById('bc');
+  bc.className=s.p==='Inhale'?'inhale':s.p==='Exhale'?'exhale':'';
+  const sc=s.p==='Inhale'?1.22:s.p==='Hold'?1.12:.88;
+  bc.style.transition=`transform ${s.t}s ease`;
+  bc.style.transform=`scale(${sc})`;
+  // progress bar
+  const pf=document.getElementById('prog-fill');
+  pf.style.transition='none';pf.style.width='0%';
+  requestAnimationFrame(()=>{pf.style.transition=`width ${s.t}s linear`;pf.style.width='100%'});
+  tick();
+}
+function tick(){
+  if(!on)return;
+  document.getElementById('bctr').textContent=count;
+  if(count>0){count--;timer=setTimeout(tick,1000)}
+  else{
+    step++;
+    if(step>=TECHS[pat].steps.length){step=0;cycles++;document.getElementById('cycles').textContent=`${cycles} cycle${cycles!==1?'s':''} complete`;const dur=Math.round((Date.now()-startTime)/1000);document.getElementById('total-time').textContent=`${Math.floor(dur/60)}m ${dur%60}s elapsed`}
+    runStep();
+  }
+}
+function logSession(name,cyc,dur){
+  const a=JSON.parse(localStorage.getItem('motm-breath')||'[]');
+  a.unshift({name,cyc,dur,date:new Date().toLocaleString()});
+  localStorage.setItem('motm-breath',JSON.stringify(a.slice(0,20)));
+  renderLog();
+}
+function clearLog(){if(confirm('Clear session log?')){localStorage.removeItem('motm-breath');renderLog()}}
+function renderLog(){
+  const a=JSON.parse(localStorage.getItem('motm-breath')||'[]');
+  const el=document.getElementById('log-entries');
+  if(!a.length){el.innerHTML='<div class="log-empty">Complete a session to log it here.</div>';return}
+  el.innerHTML=a.map(s=>`<div class="log-en"><span class="log-icon">🌬️</span><div class="log-body"><div class="log-title">${s.name}</div><div class="log-meta">${s.cyc} cycle${s.cyc!==1?'s':''} · ${Math.floor(s.dur/60)}m ${s.dur%60}s · ${s.date}</div></div></div>`).join('');
+}
+renderLog();
+</script>
+</body>
+</html>
