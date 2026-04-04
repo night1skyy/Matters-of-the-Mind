@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grounding — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#0D5C63;--teal:#44A1A0;--sky:#78CDD7;--serif:'Playfair Display',Georgia,serif;--sans:'Plus Jakarta Sans',system-ui,sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);display:flex;flex-direction:column;background:#060d10;opacity:0;animation:fadeIn .8s ease forwards}
+@keyframes fadeIn{to{opacity:1}}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(6,13,16,.92);backdrop-filter:blur(20px);flex-shrink:0;z-index:10;border-bottom:1px solid rgba(120,205,215,.08)}
+.logo-sm{font-family:var(--serif);font-size:.95rem;font-weight:700;color:rgba(255,255,255,.75);text-decoration:none}
+.logo-sm span{color:var(--sky);font-style:italic}
+.game-title{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:rgba(255,255,255,.85)}
+.back-btn{font-size:.74rem;font-weight:500;color:rgba(255,255,255,.55);text-decoration:none;border:1px solid rgba(120,205,215,.22);padding:.3rem .8rem;border-radius:7px;transition:all .22s;cursor:pointer;background:none;font-family:var(--sans)}
+.back-btn:hover{color:#fff;border-color:var(--sky);background:rgba(120,205,215,.1)}
+
+.app{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;overflow-y:auto;position:relative}
+
+/* Ambient background */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
+.amb-blob{position:absolute;border-radius:50%;filter:blur(100px);animation:blobFloat 20s ease-in-out infinite}
+.ab1{width:500px;height:500px;background:rgba(13,92,99,.35);top:-100px;left:-150px}
+.ab2{width:400px;height:400px;background:rgba(68,161,160,.2);bottom:-80px;right:-100px;animation-delay:-10s}
+@keyframes blobFloat{0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.08) translate(20px,-15px)}}
+
+/* INTRO SCREEN */
+.screen{position:relative;z-index:1;max-width:560px;width:100%;text-align:center;animation:screenIn .6s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.screen.hidden{display:none}
+
+.intro-icon{font-size:4rem;margin-bottom:1.5rem;animation:iconPulse 3s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.intro-title{font-family:var(--serif);font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:#fff;line-height:1.1;margin-bottom:1rem}
+.intro-title em{color:var(--sky);font-style:italic}
+.intro-body{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.8;max-width:420px;margin:0 auto 2rem}
+
+.start-btn{
+  display:inline-flex;align-items:center;gap:.6rem;
+  background:linear-gradient(135deg,var(--deep),var(--teal));
+  color:#fff;padding:1rem 2.5rem;border-radius:12px;
+  font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:var(--sans);
+  transition:all .28s;box-shadow:0 6px 24px rgba(13,92,99,.5)
+}
+.start-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(13,92,99,.6)}
+.start-btn svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2}
+
+/* SENSE STEP */
+.step-screen{position:relative;z-index:1;max-width:600px;width:100%;animation:screenIn .6s ease}
+.step-progress{display:flex;gap:.5rem;justify-content:center;margin-bottom:2.5rem}
+.prog-dot{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);transition:all .4s}
+.prog-dot.done{background:var(--teal)}
+.prog-dot.active{background:#fff}
+
+.step-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--sky);border:1px solid rgba(120,205,215,.3);
+  padding:.3rem .9rem;border-radius:20px;margin-bottom:1.5rem
+}
+.step-count{font-size:5rem;font-weight:900;font-family:var(--serif);color:rgba(255,255,255,.06);line-height:1;position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none;user-select:none}
+.step-title{font-family:var(--serif);font-size:clamp(2.2rem,5vw,3.5rem);font-weight:700;color:#fff;line-height:1.05;margin-bottom:.8rem;text-align:center}
+.step-title em{color:var(--sky);font-style:italic}
+.step-desc{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.78;text-align:center;margin-bottom:2.2rem;max-width:440px;margin-left:auto;margin-right:auto}
+
+/* INPUT AREA */
+.inputs-area{display:flex;flex-direction:column;gap:.7rem;margin-bottom:2.2rem;text-align:left}
+.sense-input{
+  display:flex;align-items:center;gap:.8rem;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:.9rem 1.1rem;transition:all .22s
+}
+.sense-input:focus-within{background:rgba(68,161,160,.12);border-color:rgba(120,205,215,.4)}
+.sense-num{font-family:var(--serif);font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.25);width:22px;flex-shrink:0;transition:color .3s}
+.sense-input:focus-within .sense-num{color:var(--sky)}
+.sense-input input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--sans);font-size:.96rem;color:#fff;font-weight:400
+}
+.sense-input input::placeholder{color:rgba(255,255,255,.22)}
+.sense-input .check-icon{width:22px;height:22px;flex-shrink:0;opacity:0;transition:opacity .3s;color:var(--teal)}
+.sense-input input:not(:placeholder-shown) ~ .check-icon{opacity:1}
+
+.next-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;
+  background:linear-gradient(135deg,var(--deep),var(--teal));
+  color:#fff;padding:.9rem;border-radius:12px;
+  font-size:.96rem;font-weight:600;border:none;cursor:pointer;font-family:var(--sans);
+  transition:all .28s;box-shadow:0 4px 18px rgba(13,92,99,.4);opacity:.5
+}
+.next-btn.ready{opacity:1}
+.next-btn:hover.ready{transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,92,99,.5)}
+.next-btn svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.4}
+
+/* BREATHING PAUSE */
+.pause-screen{position:relative;z-index:1;max-width:400px;width:100%;text-align:center;animation:screenIn .6s ease}
+.breath-circle{
+  width:180px;height:180px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.8rem;
+  transition:transform 4s cubic-bezier(.4,0,.2,1),box-shadow 4s;
+  position:relative
+}
+.breath-circle.inhale{transform:scale(1.4);box-shadow:0 0 0 25px rgba(68,161,160,.1),0 0 0 50px rgba(68,161,160,.05)}
+.breath-circle.exhale{transform:scale(.75);box-shadow:none}
+.breath-word{font-family:var(--serif);font-style:italic;font-size:1.3rem;color:#fff;transition:opacity .6s}
+.breath-phase-lbl{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:.6rem}
+.pause-title{font-family:var(--serif);font-size:1.6rem;color:#fff;margin-bottom:.5rem}
+.pause-body{font-size:.9rem;color:rgba(255,255,255,.45);line-height:1.72}
+
+/* COMPLETE */
+.complete-screen{position:relative;z-index:1;max-width:520px;width:100%;text-align:center;animation:screenIn .6s ease}
+.complete-aura{
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(68,161,160,.4),rgba(120,205,215,.1) 60%,transparent);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;
+  animation:auraGlow 3s ease-in-out infinite
+}
+@keyframes auraGlow{0%,100%{box-shadow:0 0 0 0 rgba(68,161,160,.3)}50%{box-shadow:0 0 0 30px rgba(68,161,160,.05)}}
+.complete-icon{font-size:3.5rem}
+.complete-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#fff;margin-bottom:.8rem}
+.complete-title em{color:var(--sky);font-style:italic}
+.complete-body{font-size:.96rem;color:rgba(255,255,255,.55);line-height:1.8;margin-bottom:2rem}
+.complete-actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+.btn-light{background:rgba(255,255,255,.1);color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-size:.9rem;font-weight:600;border:1px solid rgba(255,255,255,.18);cursor:pointer;font-family:var(--sans);transition:all .22s;text-decoration:none;display:inline-block}
+.btn-light:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="amb-blob ab1"></div>
+  <div class="amb-blob ab2"></div>
+</div>
+
+<nav>
+  <a href="toolkit.html" class="logo-sm">Matters of the <span>Mind</span></a>
+  <span class="game-title">5-4-3-2-1 Grounding</span>
+  <button class="back-btn" onclick="navigate('toolkit.html')">← Back</button>
+</nav>
+
+<div class="app">
+
+  <!-- INTRO -->
+  <div class="screen" id="introScreen">
+    <div class="intro-icon">⚓</div>
+    <h1 class="intro-title">Ground yourself,<br><em>right now.</em></h1>
+    <p class="intro-body">The 5-4-3-2-1 technique is a clinically proven method for interrupting anxiety and panic. It works by shifting your attention to your senses — pulling you out of anxious thoughts and back into the present moment.</p>
+    <button class="start-btn" onclick="startGrounding()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4V8z" fill="#fff" stroke="none"/></svg>
+      Begin Grounding
+    </button>
+  </div>
+
+  <!-- STEP SCREEN -->
+  <div class="screen step-screen hidden" id="stepScreen">
+    <div class="step-progress" id="progressDots"></div>
+    <div style="position:relative;padding:.5rem 0">
+      <div class="step-count" id="stepBigNum"></div>
+      <div style="text-align:center;margin-bottom:1.2rem">
+        <span class="step-badge" id="stepBadge"></span>
+      </div>
+      <h2 class="step-title" id="stepTitle"></h2>
+      <p class="step-desc" id="stepDesc"></p>
+    </div>
+    <div class="inputs-area" id="inputsArea"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextStep()">
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="nextBtnText">Continue</span>
+    </button>
+  </div>
+
+  <!-- BREATHING PAUSE -->
+  <div class="screen pause-screen hidden" id="pauseScreen">
+    <p style="font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sky);margin-bottom:1.2rem">Take a breath</p>
+    <div class="breath-circle" id="breathCircle">
+      <span class="breath-word" id="breathWord">breathe</span>
+    </div>
+    <div class="breath-phase-lbl" id="breathPhaseLbl">inhale slowly</div>
+    <h3 class="pause-title" style="margin-top:1.5rem" id="pauseTitle"></h3>
+    <p class="pause-body" id="pauseBody"></p>
+  </div>
+
+  <!-- COMPLETE -->
+  <div class="screen complete-screen hidden" id="completeScreen">
+    <div class="complete-aura"><div class="complete-icon">🌿</div></div>
+    <h2 class="complete-title">You're <em>grounded.</em></h2>
+    <p class="complete-body">You've completed the 5-4-3-2-1 grounding exercise. Your nervous system is calmer now. If anxiety returns, you can repeat this anytime. You did something kind for yourself today.</p>
+    <div class="complete-actions">
+      <button class="btn-light" onclick="restart()">Do it again</button>
+      <a href="breathing.html" class="btn-light">Try Breathing</a>
+      <button class="btn-light" onclick="navigate('toolkit.html')">Back to Toolkit</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+const STEPS = [
+  {
+    sense: 'See',
+    count: 5,
+    icon: '👁️',
+    title: 'Name <em>5 things</em><br>you can see.',
+    desc: 'Look around and notice five things in your environment. They can be anything — a book, the colour of a wall, the light on a window.',
+    placeholder: 'Something I can see...',
+    pauseTitle: 'Good. Keep noticing.',
+    pauseBody: 'You\'re pulling your mind into the present moment. Each sense brings you closer to now.'
+  },
+  {
+    sense: 'Touch',
+    count: 4,
+    icon: '✋',
+    title: 'Name <em>4 things</em><br>you can touch.',
+    desc: 'Reach out and physically touch four things. Notice the texture, temperature, and weight. This anchors you in your body.',
+    placeholder: 'Something I can touch...',
+    pauseTitle: 'Feel the ground beneath you.',
+    pauseBody: 'Your body is here, safe, in this moment. You are present.'
+  },
+  {
+    sense: 'Hear',
+    count: 3,
+    icon: '👂',
+    title: 'Name <em>3 things</em><br>you can hear.',
+    desc: 'Close your eyes for a moment and listen. Name three sounds — nearby or distant. Even silence has a texture.',
+    placeholder: 'Something I can hear...',
+    pauseTitle: 'You\'re doing really well.',
+    pauseBody: 'Anxiety narrows your world. These sounds remind you how wide it really is.'
+  },
+  {
+    sense: 'Smell',
+    count: 2,
+    icon: '👃',
+    title: 'Name <em>2 things</em><br>you can smell.',
+    desc: 'Notice any scents around you — the air, your clothing, nearby food or plants. If you can\'t smell anything, move to something nearby.',
+    placeholder: 'Something I can smell...',
+    pauseTitle: 'Almost there.',
+    pauseBody: 'You\'ve moved through four senses. One more to go. Take a slow breath.'
+  },
+  {
+    sense: 'Taste',
+    count: 1,
+    icon: '👅',
+    title: 'Name <em>1 thing</em><br>you can taste.',
+    desc: 'What taste is in your mouth right now? It might be subtle — the last thing you drank, toothpaste, or just the taste of air.',
+    placeholder: 'Something I can taste...',
+    pauseTitle: null,
+    pauseBody: null
+  }
+];
+
+let currentStep = 0;
+let breathInterval = null;
+let answers = [];
+
+// ── PROGRESS DOTS ──
+function renderDots() {
+  const d = document.getElementById('progressDots');
+  d.innerHTML = STEPS.map((_, i) =>
+    `<div class="prog-dot ${i < currentStep ? 'done' : i === currentStep ? 'active' : ''}"></div>`
+  ).join('');
+}
+
+// ── START ──
+function startGrounding() {
+  currentStep = 0;
+  answers = [];
+  document.getElementById('introScreen').classList.add('hidden');
+  showStep();
+}
+
+function showStep() {
+  const step = STEPS[currentStep];
+  const s = document.getElementById('stepScreen');
+  s.classList.remove('hidden');
+  document.getElementById('pauseScreen').classList.add('hidden');
+
+  renderDots();
+  document.getElementById('stepBigNum').textContent = step.count;
+  document.getElementById('stepBadge').textContent = step.icon + ' Sense ' + (currentStep + 1) + ' of 5 — ' + step.sense;
+  document.getElementById('stepTitle').innerHTML = step.title;
+  document.getElementById('stepDesc').textContent = step.desc;
+  document.getElementById('nextBtnText').textContent = currentStep === 4 ? 'Complete ✓' : 'Continue →';
+
+  // Build input fields
+  const area = document.getElementById('inputsArea');
+  area.innerHTML = '';
+  for (let i = 1; i <= step.count; i++) {
+    const div = document.createElement('div');
+    div.className = 'sense-input';
+    div.innerHTML = `
+      <span class="sense-num">${i}</span>
+      <input type="text" placeholder="${step.placeholder}" data-step="${currentStep}" data-idx="${i-1}" oninput="checkReady()">
+      <svg class="check-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10l4 4 8-8"/></svg>
+    `;
+    area.appendChild(div);
+  }
+  checkReady();
+
+  // Animate in
+  s.style.animation = 'none';
+  s.offsetHeight;
+  s.style.animation = 'screenIn .5s ease';
+}
+
+function checkReady() {
+  const step = STEPS[currentStep];
+  const inputs = document.querySelectorAll(`input[data-step="${currentStep}"]`);
+  const filled = [...inputs].filter(i => i.value.trim().length > 0).length;
+  const btn = document.getElementById('nextBtn');
+  btn.classList.toggle('ready', filled >= Math.min(1, step.count));
+}
+
+function nextStep() {
+  const btn = document.getElementById('nextBtn');
+  if (!btn.classList.contains('ready')) return;
+
+  const step = STEPS[currentStep];
+
+  if (currentStep === 4) {
+    showComplete();
+    return;
+  }
+
+  // Show breathing pause
+  showBreathPause(step, () => {
+    currentStep++;
+    showStep();
+  });
+}
+
+// ── BREATH PAUSE ──
+function showBreathPause(step, callback) {
+  document.getElementById('stepScreen').classList.add('hidden');
+  const p = document.getElementById('pauseScreen');
+  p.classList.remove('hidden');
+  document.getElementById('pauseTitle').textContent = step.pauseTitle || '';
+  document.getElementById('pauseBody').textContent = step.pauseBody || '';
+
+  p.style.animation = 'none'; p.offsetHeight; p.style.animation = 'screenIn .5s ease';
+
+  let breathT = 0;
+  const phases = [
+    { label: 'inhale slowly', dur: 4000 },
+    { label: 'hold', dur: 1500 },
+    { label: 'exhale slowly', dur: 5000 }
+  ];
+  let phaseIdx = 0;
+  const ring = document.getElementById('breathCircle');
+  const word = document.getElementById('breathWord');
+  const lbl = document.getElementById('breathPhaseLbl');
+
+  function runPhase() {
+    const ph = phases[phaseIdx];
+    lbl.textContent = ph.label;
+    word.textContent = phaseIdx === 0 ? 'breathe in' : phaseIdx === 1 ? 'hold' : 'breathe out';
+    ring.className = 'breath-circle ' + (phaseIdx === 0 ? 'inhale' : phaseIdx === 2 ? 'exhale' : '');
+    breathT = setTimeout(() => {
+      phaseIdx = (phaseIdx + 1) % phases.length;
+      if (phaseIdx === 0) breathT = setTimeout(callback, 500);
+      else runPhase();
+    }, ph.dur);
+  }
+  runPhase();
+}
+
+// ── COMPLETE ──
+function showComplete() {
+  clearTimeout(breathInterval);
+  document.getElementById('stepScreen').classList.add('hidden');
+  document.getElementById('pauseScreen').classList.add('hidden');
+  const c = document.getElementById('completeScreen');
+  c.classList.remove('hidden');
+  c.style.animation = 'none'; c.offsetHeight; c.style.animation = 'screenIn .5s ease';
+}
+
+function restart() {
+  document.getElementById('completeScreen').classList.add('hidden');
+  startGrounding();
+}
+
+function navigate(href) {
+  document.body.style.transition = 'opacity .3s';
+  document.body.style.opacity = '0';
+  setTimeout(() => window.location.href = href, 300);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Toolkit — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f7f4ee;--black:#0e0e0e;--deep:#0D5C63;--teal:#44A1A0;--sky:#78CDD7;--ink:#1a1a1a;--muted:#5c6b6d;--w:#fff;--serif:'Playfair Display',Georgia,serif;--sans:'Plus Jakarta Sans',system-ui,sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);overflow-x:hidden;opacity:0;animation:pgIn .6s ease forwards}
+@keyframes pgIn{from{opacity:0}to{opacity:1}}
+body.exit{animation:pgOut .3s ease forwards!important}
+@keyframes pgOut{to{opacity:0}}
+nav{position:sticky;top:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:.9rem 3rem;background:rgba(247,244,238,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.07);transition:box-shadow .3s}
+nav.scrolled{box-shadow:0 2px 18px rgba(0,0,0,.1)}
+.logo{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--deep);text-decoration:none;display:flex;align-items:center;gap:.45rem}
+.logo-dot{width:7px;height:7px;background:var(--teal);border-radius:50%}
+.nav-dd-wrap{position:relative}
+.nav-dd-btn{display:flex;align-items:center;gap:.35rem;font-size:.76rem;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;background:none;border:none;cursor:pointer;font-family:var(--sans);padding:.4rem .7rem;border-radius:7px;transition:all .2s}
+.nav-dd-btn:hover,.nav-dd-btn.open{color:var(--deep);background:rgba(68,161,160,.08)}
+.nav-dd-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;transition:transform .2s}
+.nav-dd-btn.open svg{transform:rotate(180deg)}
+.dd-menu{position:absolute;top:calc(100% + .5rem);right:0;min-width:230px;background:var(--w);border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.12);padding:.5rem;z-index:1000;opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .2s,transform .2s}
+.dd-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.dd-menu a{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:9px;text-decoration:none;color:var(--muted);font-size:.86rem;font-weight:500;transition:all .15s}
+.dd-menu a:hover{background:rgba(68,161,160,.08);color:var(--deep)}
+.dd-icon{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.dd-sep{height:1px;background:rgba(0,0,0,.06);margin:.35rem .5rem}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.nav-link{font-size:.76rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:.4rem .7rem;border-radius:7px;transition:all .2s}
+.nav-link:hover{color:var(--deep);background:rgba(68,161,160,.08)}
+.nav-cta{background:var(--deep);color:#fff;border-radius:8px;padding:.45rem 1.3rem;font-size:.76rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;transition:all .22s}
+.nav-cta:hover{background:var(--teal);transform:translateY(-1px)}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:.3rem;flex-direction:column;gap:5px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--deep);border-radius:2px}
+.mob-menu{display:none;position:fixed;inset:0;background:rgba(247,244,238,.98);backdrop-filter:blur(24px);z-index:899;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.mob-menu.open{display:flex;animation:mOpen .3s ease}
+@keyframes mOpen{from{opacity:0}to{opacity:1}}
+.mob-menu a{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--deep);text-decoration:none}
+.mob-close{position:absolute;top:1.5rem;right:1.8rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted)}
+.rv{opacity:0;transform:translateY(28px);transition:opacity .75s cubic-bezier(.4,0,.2,1),transform .75s cubic-bezier(.4,0,.2,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.22s}.rv.d3{transition-delay:.36s}.rv.d4{transition-delay:.5s}
+
+/* HERO */
+.tk-hero{background:var(--black);padding:5.5rem 3rem 4.5rem;position:relative;overflow:hidden}
+.tk-hero::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40%;background:linear-gradient(145deg,rgba(68,161,160,.12),transparent);pointer-events:none}
+.tk-hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.tk-kicker{font-size:.64rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin-bottom:1.1rem;display:block}
+.tk-title{font-family:var(--serif);font-weight:900;font-size:clamp(2.5rem,5vw,4.5rem);color:#fff;line-height:1.05;margin-bottom:1rem}
+.tk-title em{color:var(--sky);font-style:italic}
+.tk-body{font-size:1rem;color:rgba(255,255,255,.52);max-width:500px;line-height:1.82}
+
+/* SECTION LABEL */
+.section-wrap{max-width:1100px;margin:0 auto;padding:0 3rem}
+.section-band{padding:4.5rem 0;position:relative}
+.section-band+.section-band{border-top:1px solid rgba(0,0,0,.06)}
+.section-band.dark-bg{background:var(--black);color:#fff}
+.sec-label-row{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem}
+.sec-label{font-size:.64rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+.sec-label-line{flex:1;height:1px;background:rgba(0,0,0,.1)}
+.section-band.dark-bg .sec-label-line{background:rgba(255,255,255,.1)}
+.section-band.dark-bg .sec-label{color:var(--sky)}
+.sec-desc-row{display:grid;grid-template-columns:1fr 2fr;gap:4rem;align-items:start;margin-bottom:3rem}
+.sec-desc-title{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,3vw,2.5rem);color:var(--ink);line-height:1.1}
+.section-band.dark-bg .sec-desc-title{color:#fff}
+.sec-desc-title em{font-style:italic;color:var(--teal)}
+.section-band.dark-bg .sec-desc-title em{color:var(--sky)}
+.sec-desc-body{font-size:.96rem;color:var(--muted);line-height:1.82;padding-top:.3rem}
+.section-band.dark-bg .sec-desc-body{color:rgba(255,255,255,.5)}
+
+/* TOOL CARD GRID */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.1rem}
+
+/* Daily tool card */
+.tool-card{
+  background:var(--w);border-radius:20px;padding:2rem 1.8rem;
+  display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  border:1.5px solid rgba(0,0,0,.06);transition:all .3s;position:relative;overflow:hidden
+}
+.tool-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--sky));transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.tool-card:hover{transform:translateY(-6px);box-shadow:0 22px 54px rgba(0,0,0,.11);border-color:rgba(68,161,160,.3)}
+.tool-card:hover::after{transform:scaleX(1)}
+.tc-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(68,161,160,.14),rgba(120,205,215,.07));border:1.5px solid rgba(68,161,160,.18);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;flex-shrink:0}
+.tc-icon svg{width:26px;height:26px;stroke:#44A1A0;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tc-icon svg .fa{fill:#44A1A0;stroke:none}
+.tool-card h3{font-family:var(--serif);font-weight:700;font-size:1.18rem;color:var(--ink);margin-bottom:.35rem}
+.tc-type{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem}
+.tool-card p{font-size:.9rem;color:var(--muted);line-height:1.72;flex:1;margin-bottom:1.4rem}
+.tc-open{display:inline-flex;align-items:center;gap:.42rem;font-size:.76rem;font-weight:700;color:var(--teal);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid rgba(68,161,160,.28);padding:.4rem 1rem;border-radius:7px;transition:all .22s;align-self:flex-start}
+.tool-card:hover .tc-open{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tc-open svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.5;fill:none}
+
+/* Game card — dark theme */
+.tool-card.game-card{background:linear-gradient(145deg,#0e1f22,#162e32);border-color:rgba(68,161,160,.2)}
+.tool-card.game-card h3{color:#fff}
+.tool-card.game-card p{color:rgba(255,255,255,.5)}
+.tool-card.game-card .tc-type{color:var(--sky)}
+.tool-card.game-card::after{background:linear-gradient(90deg,var(--sky),var(--teal))}
+.tool-card.game-card .tc-open{color:var(--sky);border-color:rgba(120,205,215,.3)}
+.tool-card.game-card:hover .tc-open{background:var(--sky);color:var(--deep);border-color:var(--sky)}
+.tool-card.game-card:hover{border-color:rgba(120,205,215,.4);box-shadow:0 22px 54px rgba(13,92,99,.3)}
+.tc-icon.dark{background:linear-gradient(135deg,rgba(68,161,160,.2),rgba(120,205,215,.1));border-color:rgba(120,205,215,.25)}
+.tc-icon.dark svg{stroke:#78CDD7}
+.game-badge{position:absolute;top:1.2rem;right:1.2rem;font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);background:rgba(120,205,215,.12);border:1px solid rgba(120,205,215,.25);padding:.2rem .65rem;border-radius:20px}
+
+/* DATA SECTION */
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.data-title{font-family:var(--serif);font-weight:700;font-size:1.8rem;color:var(--ink);margin-bottom:1.2rem}
+.data-body{font-size:.95rem;color:var(--muted);line-height:1.85}
+.data-body p{margin-bottom:.85rem}
+.data-body strong{color:var(--deep);font-weight:600}
+.habit-steps{display:flex;flex-direction:column;gap:.8rem}
+.hstep{display:flex;gap:1rem;align-items:flex-start;background:var(--w);border-radius:12px;padding:1.1rem 1.3rem;border:1.5px solid rgba(0,0,0,.06);transition:all .22s}
+.hstep:hover{border-color:rgba(68,161,160,.28);transform:translateX(4px)}
+.hstep-icon{font-size:1.4rem;flex-shrink:0;line-height:1;margin-top:.1rem}
+.hstep p{font-size:.92rem;color:var(--muted);line-height:1.7}
+.hstep strong{color:var(--ink);font-weight:600}
+
+/* FOOTER */
+footer{background:var(--black);padding:3.5rem 3rem 2.5rem}
+.ft-inner{max-width:1100px;margin:0 auto}
+.ft-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.8rem;padding-bottom:1.8rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.ft-brand{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:#fff}
+.ft-brand span{color:var(--sky);font-style:italic}
+.ft-links{display:flex;gap:.5rem;flex-wrap:wrap}
+.ft-links a{font-size:.78rem;color:rgba(255,255,255,.4);text-decoration:none;padding:.2rem .65rem;transition:color .2s}
+.ft-links a:hover{color:var(--sky)}
+.ft-note{font-size:.82rem;color:rgba(255,255,255,.25);line-height:1.7}
+
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--black);color:#fff;padding:.6rem 1.2rem;border-radius:9px;font-size:.8rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(7px);transition:opacity .28s,transform .28s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(68,161,160,.3);border-radius:3px}
+
+@media(max-width:900px){
+  nav{padding:.9rem 1.5rem}
+  .nav-right .nav-link,.nav-right .nav-dd-wrap{display:none}
+  .hamburger{display:flex}
+  .tk-hero,.section-wrap,.ft-inner{padding-left:1.5rem;padding-right:1.5rem}
+  .sec-desc-row,.data-grid{grid-template-columns:1fr}
+  footer{padding-left:1.5rem;padding-right:1.5rem}
+}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<nav id="mn">
+  <a href="index.html" class="logo" data-page="index.html"><span class="logo-dot"></span>Matters of the Mind</a>
+  <div class="nav-dd-wrap" id="dd-wrap">
+    <button class="nav-dd-btn" id="dd-btn" onclick="toggleDD()">Handbook <svg viewBox="0 0 12 12"><polyline points="2 4 6 8 10 4"/></svg></button>
+    <div class="dd-menu" id="dd-menu">
+      <a href="wellbeing.html" data-page="wellbeing.html"><span class="dd-icon"><svg viewBox="0 0 18 18" fill="none" stroke="#44A1A0" stroke-width="1.7" stroke-linecap="round"><path d="M9 16S3 11 3 7a6 6 0 0 1 12 0c0 4-6 9-6 9z"/><circle cx="9" cy="7" r="2"/></svg></span>Well-being</a>
+      <a href="emotions.html" data-page="emotions.html"><span class="dd-icon"><svg viewBox="0 0 18 18" fill="none" stroke="#44A1A0" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M6.5 7.5h.01M11.5 7.5h.01M6.5 12s1.2 1.5 2.5 1.5 2.5-1.5 2.5-1.5"/></svg></span>Emotions</a>
+      <a href="barriers.html" data-page="barriers.html"><span class="dd-icon"><svg viewBox="0 0 18 18" fill="none" stroke="#44A1A0" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="8" width="14" height="8" rx="1.5"/><path d="M5 8V6a4 4 0 0 1 8 0v2"/></svg></span>Barriers</a>
+      <a href="ai-support.html" data-page="ai-support.html"><span class="dd-icon"><svg viewBox="0 0 18 18" fill="none" stroke="#44A1A0" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="2" width="6" height="6" rx="1.5"/><rect x="10" y="2" width="6" height="6" rx="1.5" opacity=".5"/><rect x="2" y="10" width="6" height="6" rx="1.5" opacity=".5"/><path d="M13 10v2m0 4v-2m0 0h-2m2 0h2"/></svg></span>AI &amp; Support</a>
+      <div class="dd-sep"></div>
+      <a href="toolkit.html" data-page="toolkit.html" class="active"><span class="dd-icon"><svg viewBox="0 0 18 18" fill="none" stroke="#44A1A0" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="5" width="14" height="11" rx="1.5"/><path d="M6 5V4a2 2 0 0 1 4 0v1M9 10v3M7.5 11.5h3"/></svg></span>Wellness Toolkit</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="helplines.html" class="nav-link" data-page="helplines.html">Helplines</a>
+    <a href="helplines.html" class="nav-cta" data-page="helplines.html">Get Help</a>
+  </div>
+  <button class="hamburger" onclick="toggleMob()"><span></span><span></span><span></span></button>
+</nav>
+<div class="mob-menu" id="mob-menu">
+  <button class="mob-close" onclick="toggleMob()">✕</button>
+  <a href="index.html" data-page="index.html">Home</a>
+  <a href="wellbeing.html" data-page="wellbeing.html">Well-being</a>
+  <a href="toolkit.html" data-page="toolkit.html">Toolkit</a>
+  <a href="helplines.html" data-page="helplines.html">Helplines</a>
+</div>
+
+<section class="tk-hero">
+  <div class="tk-hero-inner">
+    <span class="tk-kicker rv">05 — Wellness Toolkit</span>
+    <h1 class="tk-title rv d1">Tools for your<br><em>mental health.</em></h1>
+    <p class="tk-body rv d2">All data stays private in your browser — nothing is ever sent anywhere. Use them daily, or whenever you need support most.</p>
+  </div>
+</section>
+
+<!-- DAILY TOOLS -->
+<section class="section-band">
+  <div class="section-wrap">
+    <div class="sec-label-row rv"><span class="sec-label">Daily Tools</span><div class="sec-label-line"></div></div>
+    <div class="sec-desc-row rv d1">
+      <h2 class="sec-desc-title">Track, write, <em>breathe.</em></h2>
+      <p class="sec-desc-body">Four tools built for everyday mental health practice. Use them in any order, skip freely, and return whenever you need them. Your data belongs entirely to you.</p>
+    </div>
+    <div class="tool-grid">
+      <a href="mood-tracker.html" target="_blank" class="tool-card rv d1">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24"><polyline points="3,20 7,14 11,17 15,9 19,13"/><circle cx="7" cy="14" r="1.5" class="fa"/><circle cx="15" cy="9" r="1.5" class="fa"/><line x1="3" y1="20" x2="21" y2="20" stroke-width="1.5"/></svg>
+        </div>
+        <h3>Daily Mood Tracker</h3>
+        <div class="tc-type">Tracking · 30-Day Chart · Streaks · Insights</div>
+        <p>Log how you feel each day. See your 30-day colour chart, earn streaks, tag what influenced your mood, and unlock weekly personalised insights.</p>
+        <span class="tc-open">Open <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a href="journal.html" target="_blank" class="tool-card rv d2">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="12" height="20" rx="2"/><path d="M9 6h6M9 10h6M9 14h4"/><rect x="3" y="4" width="2" height="16" rx="1"/></svg>
+        </div>
+        <h3>Daily Reflection Journal</h3>
+        <div class="tc-type">Writing · Gratitude · Self-Care · Prompts</div>
+        <p>A structured journal template inspired by reflective journaling — with gratitude, self-care tracking, daily quotes, and searchable entry history.</p>
+        <span class="tc-open">Open <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a href="breathing.html" target="_blank" class="tool-card rv d3">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2.5" opacity=".6"/><circle cx="12" cy="12" r="10.5" stroke-dasharray="2 3" opacity=".3"/></svg>
+        </div>
+        <h3>Guided Breathing</h3>
+        <div class="tc-type">Calm · Box · 4-7-8 · Equal · Session Log</div>
+        <p>Choose from three clinically effective breathing patterns. An animated circle guides each phase in real time. Sessions are logged for progress tracking.</p>
+        <span class="tc-open">Open <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a href="symptom-check.html" target="_blank" class="tool-card rv d4">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke-width="2.2"/><line x1="11" y1="8" x2="11" y2="11.5" stroke-width="2"/><circle cx="11" cy="14" r=".8" class="fa"/></svg>
+        </div>
+        <h3>Symptom Identifier</h3>
+        <div class="tc-type">Self-Check · Score Gauge · Tailored Advice</div>
+        <p>A 5-question check-in with a visual score gauge, personalised result, and direct links to relevant helplines — a starting point for self-awareness.</p>
+        <span class="tc-open">Open <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CALMING EXERCISES — dark section -->
+<section class="section-band dark-bg">
+  <div class="section-wrap">
+    <div class="sec-label-row rv"><span class="sec-label">Calming Exercises</span><div class="sec-label-line"></div></div>
+    <div class="sec-desc-row rv d1">
+      <h2 class="sec-desc-title">When you need to <em>come back.</em></h2>
+      <p class="sec-desc-body">These aren't games for entertainment — they're evidence-based exercises that help regulate your nervous system. Use them when anxiety peaks, sleep is difficult, or you feel disconnected.</p>
+    </div>
+    <div class="tool-grid" style="grid-template-columns:repeat(2,1fr)">
+      <a href="grounding.html" target="_blank" class="tool-card game-card rv d1">
+        <span class="game-badge">★ Clinically Based</span>
+        <div class="tc-icon dark">
+          <svg viewBox="0 0 24 24" stroke="#78CDD7"><path d="M12 22v-8M12 14l-5-5M12 14l5-5"/><circle cx="12" cy="22" r="1.5" fill="#78CDD7" stroke="none"/><path d="M5 9V5h4M15 5h4v4"/></svg>
+        </div>
+        <h3>5-4-3-2-1 Grounding</h3>
+        <div class="tc-type">Anxiety · Panic · Overwhelm · Presence</div>
+        <p>A clinically validated sensory grounding technique that interrupts anxiety and panic by directing attention to your five senses. Guided, timed, and gently animated — use it anytime you feel overwhelmed.</p>
+        <span class="tc-open">Begin <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a href="zen-garden.html" target="_blank" class="tool-card game-card rv d2">
+        <span class="game-badge">🪨 Interactive</span>
+        <div class="tc-icon dark">
+          <svg viewBox="0 0 24 24" stroke="#78CDD7"><path d="M3 18c3-4 6-6 9-6s6 2 9 6"/><path d="M5 15c2-3 4-5 7-5s5 2 7 5"/><path d="M7 12c1.5-2 3-3 5-3s3.5 1 5 3"/><circle cx="12" cy="8" r="2.5"/></svg>
+        </div>
+        <h3>Zen Garden</h3>
+        <div class="tc-type">Rake · Stones · Day &amp; Night</div>
+        <p>Rake patterns into sand using multiple tools. Place stones, add moss, change sand colours, and shift between day, sunset, dusk, and night skies. Meditative focus through gentle creative engagement.</p>
+        <span class="tc-open">Play <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- DATA & HABIT -->
+<section class="section-band">
+  <div class="section-wrap">
+    <div class="data-grid rv">
+      <div>
+        <div class="sec-label-row" style="margin-bottom:1.2rem"><span class="sec-label">Your Privacy</span><div class="sec-label-line"></div></div>
+        <h2 class="data-title">Your data stays <em style="font-style:italic;color:var(--teal)">yours.</em></h2>
+        <div class="data-body">
+          <p>Every tool stores data exclusively in your <strong>browser localStorage</strong>. Your mood logs, journal entries, and session records never leave your device.</p>
+          <p>Clearing browser data removes entries. For long-term records, copy important journal entries to your own notes app.</p>
+          <p>None of this data is collected, transmitted, or visible to anyone other than you.</p>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label-row" style="margin-bottom:1.2rem"><span class="sec-label">A Daily Habit</span><div class="sec-label-line"></div></div>
+        <div class="habit-steps">
+          <div class="hstep"><div class="hstep-icon">🌅</div><p><strong>Morning:</strong> Quick mood log — 30 seconds. Pick how you're feeling, note what you're anticipating.</p></div>
+          <div class="hstep"><div class="hstep-icon">🌞</div><p><strong>Midday:</strong> One breathing session when feeling stressed. Box Breathing is ideal during work.</p></div>
+          <div class="hstep"><div class="hstep-icon">🌙</div><p><strong>Evening:</strong> A short daily reflection — gratitude, self-care, one thing to look forward to tomorrow.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-inner">
+    <div class="ft-top">
+      <div class="ft-brand">Matters of the <span>Mind</span></div>
+      <div class="ft-links">
+        <a href="index.html" data-page="index.html">Home</a>
+        <a href="wellbeing.html" data-page="wellbeing.html">Well-being</a>
+        <a href="helplines.html" data-page="helplines.html">Helplines</a>
+      </div>
+    </div>
+    <p class="ft-note">If you're struggling, please <a href="helplines.html" data-page="helplines.html" style="color:var(--sky);text-decoration:none">reach out for support</a>. You don't have to go through anything alone.</p>
+  </div>
+</footer>
+
+<script>
+const SHARED={
+  init(){
+    const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.05});
+    document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
+    window.addEventListener('scroll',()=>document.getElementById('mn')?.classList.toggle('scrolled',window.scrollY>10),{passive:true});
+    document.querySelectorAll('a[data-page]').forEach(a=>{
+      a.addEventListener('click',e=>{
+        const h=a.getAttribute('href');
+        if(h&&!h.startsWith('#')&&!h.startsWith('http')&&!h.startsWith('tel')&&!h.startsWith('mailto')&&a.getAttribute('target')!=='_blank'){e.preventDefault();SHARED.go(h)}
+      });
+    });
+    document.addEventListener('click',e=>{if(!document.getElementById('dd-wrap')?.contains(e.target))SHARED.closeDD()});
+  },
+  go(href){document.body.classList.add('exit');setTimeout(()=>window.location.href=href,300)},
+  closeDD(){document.getElementById('dd-btn')?.classList.remove('open');document.getElementById('dd-menu')?.classList.remove('open')}
+};
+function toggleDD(){document.getElementById('dd-btn').classList.toggle('open');document.getElementById('dd-menu').classList.toggle('open')}
+function toggleMob(){document.getElementById('mob-menu').classList.toggle('open')}
+document.addEventListener('DOMContentLoaded',()=>SHARED.init());
+</script>
+</body>
+</html>

@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Journal — Matters of the Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#c8bfb0;color:#1a1a1a;opacity:0;animation:pgIn .4s ease forwards}
+@keyframes pgIn{to{opacity:1}}
+
+/* ════ SHELF ════ */
+#shelf-screen{position:fixed;inset:0;background:linear-gradient(160deg,#fdf8f2,#f0e6d4 60%,#e6dac8);overflow-y:auto;z-index:10;display:flex;flex-direction:column}
+.shelf-nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,0,0,.07);flex-shrink:0}
+.shelf-logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#0D5C63;text-decoration:none;display:flex;align-items:center;gap:.4rem}
+.shelf-logo-dot{width:7px;height:7px;background:#44A1A0;border-radius:50%}
+.shelf-title-wrap{text-align:center;padding:2.5rem 2rem 1rem}
+.shelf-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#44A1A0;margin-bottom:.4rem}
+.shelf-h1{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:#0D5C63;margin-bottom:.3rem}
+.shelf-sub{font-size:.88rem;color:#6b7e80;font-weight:300}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:2.2rem 1.8rem;padding:1.8rem 2.8rem 4rem;max-width:1200px;margin:0 auto;width:100%}
+.book-slot{display:flex;flex-direction:column;align-items:center;gap:.6rem;cursor:pointer}
+.book-3d{width:112px;height:152px;position:relative;transform-style:preserve-3d;transform:perspective(700px) rotateY(-18deg);transition:transform .38s cubic-bezier(.34,1.4,.64,1);flex-shrink:0}
+.book-slot:hover .book-3d{transform:perspective(700px) rotateY(-4deg) translateY(-10px) scale(1.05)}
+.book-slot.locked .book-3d{filter:grayscale(.55);opacity:.5;cursor:default}
+.book-slot.locked:hover .book-3d{transform:perspective(700px) rotateY(-18deg)}
+.book-front{position:absolute;inset:0;border-radius:2px 10px 10px 2px;display:flex;flex-direction:column;justify-content:space-between;padding:.85rem .7rem .7rem;box-shadow:5px 6px 24px rgba(0,0,0,.22),inset -2px 0 8px rgba(0,0,0,.1);overflow:hidden}
+.book-front::after{content:'';position:absolute;top:0;right:0;bottom:0;width:16px;background:linear-gradient(to right,rgba(0,0,0,.1),transparent);border-radius:0 10px 10px 0}
+.book-spine{position:absolute;left:-13px;top:0;bottom:0;width:13px;border-radius:4px 0 0 4px;box-shadow:-3px 0 8px rgba(0,0,0,.18)}
+.book-month-num{font-size:.47rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:.15rem}
+.book-month-name{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:#fff;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.2)}
+.book-year-txt{font-size:.52rem;color:rgba(255,255,255,.42);margin-top:.12rem}
+.book-deco{font-size:2.2rem;opacity:.2;position:absolute;bottom:.35rem;right:.45rem;line-height:1}
+.book-dot{position:absolute;top:.5rem;right:.55rem;width:7px;height:7px;background:rgba(255,255,255,.88);border-radius:50%}
+.book-label{font-size:.72rem;font-weight:600;color:#4a5c5e;text-align:center}
+
+/* ════ MONTH VIEW ════ */
+#month-screen{position:fixed;inset:0;background:linear-gradient(160deg,#fdf8f2,#f0e6d4);overflow-y:auto;z-index:15;display:none;flex-direction:column}
+#month-screen.open{display:flex}
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,0,0,.07);flex-shrink:0}
+.month-back{font-size:.72rem;font-weight:600;color:#5c6b6d;border:1.5px solid rgba(0,0,0,.1);padding:.28rem .8rem;border-radius:7px;cursor:pointer;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.month-back:hover{color:#0D5C63;border-color:#44A1A0}
+.month-view-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#0D5C63}
+.month-body{flex:1;padding:1.5rem 2.5rem 3rem;max-width:1000px;margin:0 auto;width:100%}
+
+/* Monthly summary card */
+.month-summary{background:#fff;border-radius:18px;padding:1.4rem 1.6rem;margin-bottom:1.5rem;box-shadow:0 4px 24px rgba(0,0,0,.07);display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;align-items:center}
+.ms-stat{text-align:center}
+.ms-val{font-family:'Playfair Display',serif;font-size:1.8rem;color:#0D5C63;line-height:1}
+.ms-lbl{font-size:.52rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-top:.12rem}
+.ms-mood-bar{display:flex;gap:2px;justify-content:center;margin-top:.4rem;flex-wrap:wrap}
+.ms-mb-cell{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* Calendar grid */
+.cal-section-title{font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#0D5C63;margin-bottom:.8rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-bottom:.4rem}
+.cal-day-hd{text-align:center;font-size:.58rem;font-weight:700;color:#aaa;padding:.2rem 0;letter-spacing:.06em}
+.cal-cell{position:relative;border-radius:10px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .22s;border:1.5px solid transparent;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.cal-cell:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.12);border-color:rgba(68,161,160,.4)}
+.cal-cell.today{border-color:#44A1A0;box-shadow:0 0 0 2px rgba(68,161,160,.25)}
+.cal-cell.has-entry{background:linear-gradient(135deg,rgba(13,92,99,.08),rgba(68,161,160,.06))}
+.cal-cell.future{opacity:.35;cursor:default;pointer-events:none}
+.cal-cell.empty{background:transparent;box-shadow:none;cursor:default;pointer-events:none}
+.cal-num{font-size:.78rem;font-weight:700;color:#333;line-height:1}
+.cal-cell.today .cal-num{color:#0D5C63}
+.cal-mood-dot{font-size:.85rem;line-height:1;margin-top:.1rem}
+.cal-has-badge{position:absolute;top:.28rem;right:.28rem;width:5px;height:5px;background:#44A1A0;border-radius:50%}
+.cal-entry-preview{font-size:.45rem;color:#888;text-align:center;padding:0 .1rem;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.2;margin-top:.05rem}
+
+/* Legend & quick entry */
+.cal-legend{display:flex;align-items:center;gap:1.2rem;margin-top:.6rem;flex-wrap:wrap}
+.cl-item{display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:#888}
+.cl-dot{width:8px;height:8px;border-radius:50%}
+
+/* ════ BOOK / DAY VIEW ════ */
+#book-screen{position:fixed;inset:0;background:#1a1208;display:none;z-index:20;flex-direction:column;align-items:center}
+#book-screen.open{display:flex}
+.book-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:.52rem 1.2rem;background:rgba(0,0,0,.55);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:.5rem}
+.btb-left,.btb-right{display:flex;align-items:center;gap:.45rem;min-width:0}
+.btb-btn{display:flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.75);padding:.28rem .72rem;border-radius:7px;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.btb-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.btb-btn.active{background:rgba(68,161,160,.45);border-color:rgba(68,161,160,.7);color:#fff}
+.btb-title{font-family:'Playfair Display',serif;font-size:.85rem;color:rgba(255,255,255,.65);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.save-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;transition:all .4s}
+.save-dot.saving{background:#f0d060;animation:pulse .8s infinite}
+.save-dot.saved{background:#70c090}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Template tabs */
+.tpl-tabs{display:flex;gap:.2rem;overflow-x:auto;padding:.4rem .9rem;background:rgba(0,0,0,.38);flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.05);scrollbar-width:none}
+.tpl-tabs::-webkit-scrollbar{display:none}
+.tpl-tab{font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.38);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:.24rem .62rem;border-radius:20px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:all .2s}
+.tpl-tab:hover{color:rgba(255,255,255,.75)}
+.tpl-tab.active{background:rgba(68,161,160,.32);border-color:rgba(68,161,160,.55);color:#fff}
+
+/* Day navigator */
+.day-nav-bar{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.4rem .9rem;background:rgba(0,0,0,.28);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.day-nav-bar::-webkit-scrollbar{display:none}
+.day-pill{flex-shrink:0;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);transition:all .2s;position:relative}
+.day-pill:hover{border-color:rgba(68,161,160,.5);color:rgba(255,255,255,.8)}
+.day-pill.active{background:rgba(68,161,160,.4);border-color:rgba(68,161,160,.8);color:#fff}
+.day-pill.has-entry{border-color:rgba(68,161,160,.35);color:rgba(255,255,255,.7)}
+.day-pill.has-entry::after{content:'';position:absolute;bottom:1px;right:1px;width:4px;height:4px;background:#44A1A0;border-radius:50%}
+.day-pill.today-pill{border-color:rgba(255,255,255,.35);color:rgba(255,255,255,.8)}
+.day-pill.future-day{opacity:.25;cursor:default;pointer-events:none}
+
+/* Book stage */
+.book-stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;width:100%;padding:.8rem 3rem}
+.open-book{position:relative;display:flex;width:100%;height:100%;max-width:1400px;border-radius:3px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.book-spine-shadow{position:absolute;left:50%;top:0;bottom:0;width:48px;transform:translateX(-50%);background:linear-gradient(to right,rgba(0,0,0,.18) 0%,rgba(0,0,0,.04) 40%,rgba(0,0,0,.04) 60%,rgba(0,0,0,.18) 100%);pointer-events:none;z-index:40}
+.book-spine-line{position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:linear-gradient(to bottom,#d4c8b0,#b8a888,#d4c8b0);pointer-events:none;z-index:41;box-shadow:0 0 6px rgba(0,0,0,.35)}
+.book-half{flex:1;position:relative;overflow:hidden;min-width:0}
+.book-half-left{border-radius:3px 0 0 3px}
+.book-half-right{border-radius:0 3px 3px 0}
+
+/* Page */
+.page-face{width:100%;height:100%;position:relative;background:#fefcf8;overflow:hidden;display:flex;flex-direction:column}
+.paper-ruled{background:#fefcf8;background-image:repeating-linear-gradient(to bottom,transparent 0px,transparent 31px,#ddd8ce 31px,#ddd8ce 32px);background-position:0 44px}
+.paper-dot{background:#fefcf8;background-image:radial-gradient(circle,#ccc8be 1px,transparent 1px);background-size:22px 22px;background-position:11px 11px}
+.paper-plain{background:#fefcf8}
+.paper-grid{background:#fefcf8;background-image:linear-gradient(rgba(180,175,165,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(180,175,165,.4) 1px,transparent 1px);background-size:22px 22px}
+.paper-pink{background:#fff8fa;background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(230,180,195,.3) 31px,rgba(230,180,195,.3) 32px);background-position:0 44px}
+.paper-mint{background:#f6fdf8;background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(150,210,175,.28) 31px,rgba(150,210,175,.28) 32px);background-position:0 44px}
+.paper-warm{background:#fdf8f0;background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(210,190,150,.28) 31px,rgba(210,190,150,.28) 32px);background-position:0 44px}
+
+.page-num{position:absolute;bottom:.55rem;font-size:.56rem;font-weight:600;color:rgba(0,0,0,.18);letter-spacing:.05em;z-index:5}
+.book-half-left .page-num{right:1rem}
+.book-half-right .page-num{left:1rem}
+
+/* Page turn anim */
+.page-turn-overlay{position:absolute;top:0;right:0;bottom:0;width:0;background:linear-gradient(to left,rgba(160,140,110,.55) 0%,rgba(190,170,140,.18) 40%,transparent 100%);pointer-events:none;z-index:30;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.page-turning .page-turn-overlay{width:100%}
+.page-turn-overlay-r{position:absolute;top:0;left:0;bottom:0;width:0;background:linear-gradient(to right,rgba(160,140,110,.55) 0%,rgba(190,170,140,.18) 40%,transparent 100%);pointer-events:none;z-index:30;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.page-turning-r .page-turn-overlay-r{width:100%}
+
+/* Arrows */
+.book-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .22s;z-index:50;backdrop-filter:blur(8px)}
+.book-arrow:hover{background:rgba(255,255,255,.22);color:#fff;transform:translateY(-50%) scale(1.05)}
+.book-arrow.prev{left:.3rem}
+.book-arrow.next{right:.3rem}
+.book-arrow:disabled{opacity:.15;cursor:default;pointer-events:none}
+
+/* Stickers + canvas */
+.sticker-layer{position:absolute;inset:0;pointer-events:none;z-index:20;overflow:hidden}
+.sticker-layer.active{pointer-events:all}
+.sticker-item{position:absolute;font-size:1.8rem;cursor:grab;user-select:none;line-height:1;touch-action:none}
+.sticker-item:active{cursor:grabbing;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22))}
+.draw-canvas{position:absolute;inset:0;z-index:15;pointer-events:none}
+.draw-canvas.drawing{pointer-events:all;cursor:crosshair}
+
+/* Page content */
+.page-content{flex:1;overflow-y:auto;padding:1.5rem 1.7rem 2rem;position:relative;z-index:2;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
+.page-content::-webkit-scrollbar{width:3px}
+.page-content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.08);border-radius:2px}
+
+/* ════ TEMPLATE ELEMENTS ════ */
+.t-label{font-size:.54rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#999;display:block;margin-bottom:.25rem}
+.t-label.blue{color:#2a5a9a}.t-label.green{color:#2e6b4e}.t-label.teal{color:#0D5C63}.t-label.purple{color:#6a3a8a}.t-label.rose{color:#9a3060}
+.t-input{display:block;width:100%;border:none;border-bottom:1.5px solid #e0dbd0;background:transparent;padding:.22rem .05rem .08rem;font-family:'Caveat',cursive;font-size:1.12rem;color:#1a1a1a;outline:none;transition:border-color .2s;resize:none;overflow:hidden;min-height:1.75rem;line-height:1.45}
+.t-input:focus{border-bottom-color:#44A1A0}
+.t-input::placeholder{color:rgba(0,0,0,.14);font-style:italic}
+.t-area{display:block;width:100%;min-height:3rem;border:none;border-bottom:1.5px solid #e0dbd0;background:transparent;padding:.22rem .05rem .08rem;font-family:'Caveat',cursive;font-size:1.12rem;color:#1a1a1a;outline:none;transition:border-color .2s;resize:none;overflow:hidden;line-height:1.85}
+.t-area:focus{border-bottom-color:#44A1A0}
+.t-area::placeholder{color:rgba(0,0,0,.14);font-style:italic}
+.t-section{margin-bottom:1.15rem}
+.t-num-row{display:flex;align-items:flex-start;gap:.45rem;margin-bottom:.1rem}
+.t-num{font-size:.72rem;font-weight:700;color:#bbb;padding-top:.38rem;flex-shrink:0;width:14px}
+.t-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* Page header strip */
+.page-header{padding:0 0 .7rem;margin-bottom:.7rem;border-bottom:2px solid currentColor;display:flex;align-items:flex-end;justify-content:space-between}
+.page-header-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;letter-spacing:-.02em}
+.page-header-date{font-size:.65rem;color:#999;font-style:italic}
+
+/* Mood row */
+.mood-row{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-top:.25rem}
+.m-e{font-size:1.15rem;cursor:pointer;opacity:.32;transition:all .18s;padding:.08rem;border-radius:4px;line-height:1}
+.m-e:hover{opacity:.7;transform:scale(1.18)}
+.m-e.on{opacity:1;transform:scale(1.12)}
+.mood-lbl{font-family:'Caveat',cursive;font-size:.95rem;color:#44A1A0;font-style:italic;min-width:55px}
+
+/* Cover page */
+.cover-face{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:2rem}
+.cover-pat-layer{position:absolute;inset:0;opacity:.1;pointer-events:none}
+.cv-day{font-size:.85rem;color:rgba(255,255,255,.5);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.5rem;font-weight:600}
+.cv-num{font-family:'Playfair Display',serif;font-size:5rem;font-weight:900;color:#fff;line-height:1;text-shadow:0 4px 30px rgba(0,0,0,.3)}
+.cv-month{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:400;font-style:italic;color:rgba(255,255,255,.7);margin-top:.2rem}
+.cv-custom{font-family:'Caveat',cursive;font-size:1.3rem;color:rgba(255,255,255,.75);margin-top:.9rem;font-style:italic;text-align:center}
+
+/* ════ SIDE PANELS ════ */
+.side-panel{position:fixed;right:-315px;top:0;bottom:0;width:315px;background:#fff;box-shadow:-8px 0 40px rgba(0,0,0,.2);z-index:60;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.side-panel.open{right:0}
+.sp-head{padding:.88rem 1.1rem;border-bottom:1px solid #f0ece4;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sp-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:#0D5C63}
+.sp-close{background:none;border:none;font-size:1.1rem;cursor:pointer;color:#aaa;width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.sp-close:hover{background:#f4f0e8;color:#555}
+.sp-body{flex:1;overflow-y:auto;padding:.85rem;scrollbar-width:thin}
+.sp-sec{margin-bottom:.9rem}
+.sp-sec-title{font-size:.56rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#44A1A0;margin-bottom:.4rem}
+.dc-grid{display:flex;flex-wrap:wrap;gap:.38rem}
+.dc{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;flex-shrink:0}
+.dc.on{border-color:#0D5C63;transform:scale(1.15);box-shadow:0 0 0 2px rgba(13,92,99,.2)}
+.size-row{display:flex;align-items:center;gap:.55rem}
+.size-row label{font-size:.7rem;font-weight:600;color:#666;white-space:nowrap;min-width:28px}
+.size-row input{flex:1}
+.size-row span{font-size:.68rem;color:#888;width:18px;text-align:right}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:.38rem}
+.m-btn{padding:.45rem;border:1.5px solid #e8e4dc;border-radius:8px;background:transparent;font-size:.74rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#666;transition:all .2s}
+.m-btn.on{background:#0D5C63;color:#fff;border-color:#0D5C63}
+.clr-btn{width:100%;padding:.48rem;background:#fff4f4;color:#b03030;border:1.5px solid rgba(176,48,48,.2);border-radius:8px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.clr-btn:hover{background:#ffe8e8}
+.stk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.22rem}
+.stk-pick{font-size:1.25rem;cursor:pointer;text-align:center;padding:.2rem;border-radius:6px;transition:all .18s;border:1px solid transparent;user-select:none}
+.stk-pick:hover{background:#f0f8f0;transform:scale(1.2)}
+.sw-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.32rem}
+.cv-sw{width:29px;height:29px;border-radius:6px;cursor:pointer;border:2.5px solid transparent;transition:all .15s}
+.cv-sw.on{border-color:#fff;box-shadow:0 0 0 2px #0D5C63;transform:scale(1.08)}
+.pat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.38rem}
+.pat-btn{padding:.42rem;border:1.5px solid #e8e4dc;border-radius:8px;background:transparent;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#666;transition:all .2s;text-align:center}
+.pat-btn.on{background:#0D5C63;color:#fff;border-color:#0D5C63}
+.cv-inp{width:100%;border:1.5px solid #e8e4dc;border-radius:8px;padding:.48rem .65rem;font-family:'Caveat',cursive;font-size:1.05rem;outline:none;color:#2d2d2d;transition:border-color .2s}
+.cv-inp:focus{border-color:#44A1A0}
+
+/* Toast */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#0D5C63;color:#fff;padding:.48rem .95rem;border-radius:8px;font-size:.76rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateY(0)}
+.shelf-back-btn{display:flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.55);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:.27rem .72rem;border-radius:7px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.shelf-back-btn:hover{color:#fff;background:rgba(255,255,255,.16)}
+
+@media(max-width:860px){.book-spine-shadow,.book-spine-line{display:none}.book-stage{padding:.5rem .5rem}.books-grid{padding:1.5rem;gap:1.5rem 1rem}}
+@media(max-width:560px){.open-book{flex-direction:column}.book-half-left{border-radius:3px 3px 0 0}.book-half-right{border-radius:0 0 3px 3px}.books-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- ══ SHELF ══ -->
+<div id="shelf-screen">
+  <nav class="shelf-nav">
+    <a href="index.html" class="shelf-logo" onclick="go('index.html');return false"><span class="shelf-logo-dot"></span>Matters of the Mind</a>
+    <a href="toolkit.html" onclick="go('toolkit.html');return false" style="font-size:.72rem;font-weight:600;color:#5c6b6d;text-decoration:none;border:1.5px solid rgba(0,0,0,.1);padding:.26rem .78rem;border-radius:7px">← Toolkit</a>
+  </nav>
+  <div class="shelf-title-wrap">
+    <div class="shelf-eyebrow">Your personal space</div>
+    <h1 class="shelf-h1">My Journal</h1>
+    <p class="shelf-sub">Choose a month — write every day, your way.</p>
+  </div>
+  <div class="books-grid" id="booksGrid"></div>
+</div>
+
+<!-- ══ MONTH VIEW ══ -->
+<div id="month-screen">
+  <nav class="month-nav">
+    <button class="month-back" onclick="closeMonth()">← All Months</button>
+    <span class="month-view-title" id="monthViewTitle"></span>
+    <button class="month-back" id="monthOpenStyleBtn" onclick="togglePanel('cover')">🎨 Style</button>
+  </nav>
+  <div class="month-body">
+    <!-- Summary strip -->
+    <div class="month-summary" id="monthSummary"></div>
+    <!-- Calendar -->
+    <div class="cal-section-title">Daily Entries</div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <div class="cl-item"><div class="cl-dot" style="background:#44A1A0"></div>Has entry</div>
+      <div class="cl-item"><div class="cl-dot" style="background:#f0d060;border-radius:3px"></div>Today</div>
+      <div class="cl-item" style="font-size:.68rem;color:#bbb;font-style:italic">Click any day to open it</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOK / DAY VIEW ══ -->
+<div id="book-screen">
+  <div class="book-topbar">
+    <div class="btb-left">
+      <button class="shelf-back-btn" onclick="closeDay()">← Month</button>
+      <span class="btb-title" id="bookTitle"></span>
+      <span class="save-dot" id="saveDot"></span>
+    </div>
+    <div class="btb-right">
+      <button class="btb-btn" id="drawBtn" onclick="togglePanel('draw')">✏️ Draw</button>
+      <button class="btb-btn" id="stickerBtn" onclick="togglePanel('sticker')">✨ Stickers</button>
+    </div>
+  </div>
+  <div class="tpl-tabs" id="tplTabs"></div>
+  <div class="day-nav-bar" id="dayNavBar"></div>
+
+  <div class="book-stage">
+    <button class="book-arrow prev" id="prevBtn" onclick="turnPage(-1)">‹</button>
+    <div class="open-book" id="openBook">
+      <div class="book-spine-shadow"></div>
+      <div class="book-spine-line"></div>
+      <div class="book-half book-half-left" id="leftHalf">
+        <div class="page-face paper-ruled" id="leftPage">
+          <div class="sticker-layer" id="leftStickers"></div>
+          <canvas class="draw-canvas" id="leftCanvas"></canvas>
+          <div class="page-content" id="leftContent"></div>
+          <div class="page-turn-overlay"></div>
+          <span class="page-num" id="leftPageNum"></span>
+        </div>
+      </div>
+      <div class="book-half book-half-right" id="rightHalf">
+        <div class="page-face paper-ruled" id="rightPage">
+          <div class="sticker-layer" id="rightStickers"></div>
+          <canvas class="draw-canvas" id="rightCanvas"></canvas>
+          <div class="page-content" id="rightContent"></div>
+          <div class="page-turn-overlay-r"></div>
+          <span class="page-num" id="rightPageNum"></span>
+        </div>
+      </div>
+    </div>
+    <button class="book-arrow next" id="nextBtn" onclick="turnPage(1)">›</button>
+  </div>
+</div>
+
+<!-- Panels -->
+<div class="side-panel" id="drawPanel">
+  <div class="sp-head"><span class="sp-title">Draw</span><button class="sp-close" onclick="closePanel('draw')">✕</button></div>
+  <div class="sp-body">
+    <div class="sp-sec"><div class="sp-sec-title">Colour</div><div class="dc-grid" id="drawColors"></div></div>
+    <div class="sp-sec"><div class="sp-sec-title">Brush size</div><div class="size-row"><label>Size</label><input type="range" min="1" max="24" value="4" id="brushSize"><span id="bsVal">4</span></div></div>
+    <div class="sp-sec"><div class="sp-sec-title">Mode</div><div class="mode-row"><button class="m-btn on" id="penBtn" onclick="setMode('pen')">✏️ Pen</button><button class="m-btn" id="eraserBtn" onclick="setMode('eraser')">⬜ Eraser</button></div></div>
+    <button class="clr-btn" onclick="clearCanvas()">Clear Drawing</button>
+  </div>
+</div>
+<div class="side-panel" id="stickerPanel">
+  <div class="sp-head"><span class="sp-title">Stickers</span><button class="sp-close" onclick="closePanel('sticker')">✕</button></div>
+  <div class="sp-body" id="stickerBody"></div>
+</div>
+<div class="side-panel" id="coverPanel">
+  <div class="sp-head"><span class="sp-title">Month Style</span><button class="sp-close" onclick="closePanel('cover')">✕</button></div>
+  <div class="sp-body">
+    <div class="sp-sec"><div class="sp-sec-title">Cover colour</div><div class="sw-grid" id="coverSwatches"></div></div>
+    <div class="sp-sec"><div class="sp-sec-title">Cover pattern</div><div class="pat-grid" id="patternBtns"></div></div>
+    <div class="sp-sec"><div class="sp-sec-title">Page style</div><div class="pat-grid" id="paperBtns"></div></div>
+    <div class="sp-sec"><div class="sp-sec-title">Month title</div><input class="cv-inp" id="cvTitleInp" placeholder="My journal…" oninput="setCoverTitle(this.value)"></div>
+  </div>
+</div>
+
+<script>
+// ════ CONSTANTS ════
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const NOW=new Date(), CUR_M=NOW.getMonth(), CUR_D=NOW.getDate(), CUR_Y=NOW.getFullYear();
+const TODAY_KEY=`${CUR_Y}-${String(CUR_M+1).padStart(2,'0')}-${String(CUR_D).padStart(2,'0')}`;
+
+const BOOK_COLORS=[
+  ['#2e6b4e','#225538'],['#7a3e8c','#612d75'],['#c4683c','#a8522e'],
+  ['#2e7d9e','#1f6080'],['#5a8f3c','#478030'],['#c8921a','#a8761a'],
+  ['#c03050','#a02040'],['#3a6b8c','#2c5470'],['#8c5c2a','#704820'],
+  ['#4a4a8a','#383878'],['#2a7a6a','#1e6055'],['#8a2a2a','#702020']
+];
+const BOOK_DECOS=['❄️','💜','🌸','🌊','🌿','☀️','🍒','⛵','🍂','🎃','🍃','🎄'];
+const MOOD_EMOJIS=['😢','😔','😐','🙂','😄','🤩'];
+const MOOD_LABELS=['Very hard','Low','Okay','Good','Happy','Amazing'];
+const MOOD_COLORS=['#c07070','#d0906a','#e0a040','#c8d860','#68c490','#44A1A0'];
+
+const COVER_SWATCHES=['#2e6b4e','#7a3e8c','#c4683c','#2e7d9e','#5a8f3c','#c8921a','#c03050','#3a6b8c','#8c5c2a','#4a4a8a','#2a7a6a','#8a2a2a','#446b8a','#7a5c2a','#2a6b5a','#8a4a4a','#1a3a5a','#5a2a5a','#3a5a1a','#5a4a2a','#4a6b6b','#6b2a4a'];
+const PATTERNS=['None','Dots','Lines','Grid','Stars','Waves'];
+const PAPER_STYLES=['Ruled','Dot','Plain','Grid','Pink','Mint','Warm'];
+
+const STICKER_CATS={
+  'Nature':['🌸','🌺','🌻','🌼','🌷','🌹','🍀','🍃','🌿','🌱','🌲','🌴','🍂','🍁','🌊','🌙','⭐','☀️','🌈','❄️','🦋','🌾'],
+  'Feelings':['😊','😍','🥰','😄','🤗','😌','🥺','💪','✨','💫','🌟','💖','💕','💗','💝','🎀','🙏','🤩','😎','🌸'],
+  'Objects':['📚','🖊️','🎵','🎶','☕','🍵','🍰','🧁','🎁','🏆','📝','🔑','💌','🎨','🖌️','🕯️','📖','💎','🎭','🌿'],
+  'Marks':['✅','💯','⭐','🔥','💡','❤️','💙','💚','💛','🧡','💜','⚡','✨','🌟','💫','✓','→','♡','☆','◇']
+};
+
+// Template definitions — each page = left + right
+const TEMPLATES=[
+  {id:'daily',   name:'📋 Daily',     left:'daily-l',     right:'daily-r'},
+  {id:'reflect', name:'🔍 Reflection', left:'reflect-l',   right:'reflect-r'},
+  {id:'weekly',  name:'📅 Planner',   left:'weekly-l',    right:'weekly-r'},
+  {id:'gratitude',name:'🙏 Gratitude',left:'gratitude-l', right:'gratitude-r'},
+  {id:'mindful', name:'🧘 Mindfulness',left:'mindful-l',  right:'mindful-r'},
+  {id:'free',    name:'🖊️ Free Write', left:'free',        right:'free2'},
+];
+
+// ════ STATE ════
+let curMonth=null; // {m, y}
+let curDay=null;   // day number 1-31
+let curSpread=0;
+let openPanel=null;
+let drawMode='pen', drawColor='#1a1a1a', brushSz=4;
+let painting=false, activeCtx=null, activeCanvas=null, lx=0, ly=0;
+let saveTimer=null;
+
+// ════ STORAGE HELPERS ════
+function monthKey(m,y){return `${y}-${String(m+1).padStart(2,'0')}`}
+function dayKey(m,y,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function spreadKey(s,side){return `sp${s}_${side}`}
+
+function getMonthData(m,y){
+  try{
+    const raw=localStorage.getItem('motm-month-'+monthKey(m,y));
+    const p=raw?JSON.parse(raw):{};
+    return {coverColor:p.coverColor||null,pattern:p.pattern||'None',paper:p.paper||'Ruled',title:p.title||'',...p};
+  }catch(e){return{coverColor:null,pattern:'None',paper:'Ruled',title:''}}
+}
+function saveMonthData(m,y,data){
+  localStorage.setItem('motm-month-'+monthKey(m,y),JSON.stringify(data));
+}
+
+function getDayData(m,y,d){
+  try{
+    const raw=localStorage.getItem('motm-day-'+dayKey(m,y,d));
+    const p=raw?JSON.parse(raw):{};
+    return {spreads:{},...p,spreads:p.spreads||{}};
+  }catch(e){return{spreads:{}}}
+}
+function saveDayData(m,y,d,data){
+  localStorage.setItem('motm-day-'+dayKey(m,y,d),JSON.stringify(data));
+}
+
+function hasEntry(m,y,d){
+  try{
+    const raw=localStorage.getItem('motm-day-'+dayKey(m,y,d));
+    if(!raw)return false;
+    const p=JSON.parse(raw);
+    const spreads=p.spreads||{};
+    return Object.values(spreads).some(s=>s&&Object.keys(s).some(k=>k!=='drawing'&&k!=='stickers'&&s[k]));
+  }catch(e){return false}
+}
+
+function getDayMood(m,y,d){
+  try{
+    const raw=localStorage.getItem('motm-day-'+dayKey(m,y,d));
+    if(!raw)return null;
+    const p=JSON.parse(raw);
+    // Look for any stored mood across spreads
+    for(const sk of Object.keys(p.spreads||{})){
+      const s=p.spreads[sk];
+      for(const k of Object.keys(s||{})){
+        if(k.includes('mood')&&MOOD_EMOJIS.includes(s[k]))return s[k];
+      }
+    }
+    return null;
+  }catch(e){return null}
+}
+
+// ════ SHELF ════
+function buildShelf(){
+  const g=document.getElementById('booksGrid');
+  g.innerHTML='';
+  for(let m=0;m<12;m++){
+    const future=m>CUR_M;
+    const c=BOOK_COLORS[m];
+    const md=getMonthData(m,CUR_Y);
+    const cc=md.coverColor||c[0];
+    // Count days with entries
+    const dim=new Date(CUR_Y,m+1,0).getDate();
+    let entryCount=0;
+    for(let d=1;d<=dim;d++)if(hasEntry(m,CUR_Y,d))entryCount++;
+    const slot=document.createElement('div');
+    slot.className='book-slot'+(future?' locked':'');
+    if(!future)slot.onclick=()=>openMonth(m,CUR_Y);
+    slot.innerHTML=`
+      <div class="book-3d">
+        <div class="book-spine" style="background:${c[1]}"></div>
+        <div class="book-front" style="background:${cc}">
+          ${entryCount>0?'<div class="book-dot"></div>':''}
+          <div><div class="book-month-num">${CUR_Y}</div><div class="book-month-name">${MONTHS[m]}</div><div class="book-year-txt">${entryCount>0?entryCount+' entries':''}</div></div>
+          <div class="book-deco">${BOOK_DECOS[m]}</div>
+        </div>
+      </div>
+      <div class="book-label">${MONTHS[m].slice(0,3)}${future?' 🔒':''}</div>`;
+    g.appendChild(slot);
+  }
+}
+
+// ════ MONTH VIEW ════
+function openMonth(m,y){
+  curMonth={m,y};
+  document.getElementById('shelf-screen').style.display='none';
+  document.getElementById('month-screen').classList.add('open');
+  document.getElementById('monthViewTitle').textContent=`${MONTHS[m]} ${y}`;
+  buildMonthView();
+  // Sync cover panel
+  const md=getMonthData(m,y);
+  const cvInp=document.getElementById('cvTitleInp');
+  if(cvInp)cvInp.value=md.title||'';
+}
+
+function closeMonth(){
+  document.getElementById('month-screen').classList.remove('open');
+  document.getElementById('shelf-screen').style.display='flex';
+  closePanel(openPanel);
+  buildShelf();
+}
+
+function buildMonthView(){
+  if(!curMonth)return;
+  const {m,y}=curMonth;
+  const dim=new Date(y,m+1,0).getDate();
+  const firstDay=new Date(y,m,1).getDay();
+  const moods=JSON.parse(localStorage.getItem('motm-moods-v2')||'{}');
+  const pfx=monthKey(m,y);
+
+  // Summary
+  let entryCount=0, moodTotal=0, moodCount=0;
+  for(let d=1;d<=dim;d++){
+    if(hasEntry(m,y,d))entryCount++;
+    const mk=moods[`${pfx}-${String(d).padStart(2,'0')}`];
+    if(mk){moodTotal+=mk.v;moodCount++;}
+  }
+  const avgMood=moodCount?(moodTotal/moodCount).toFixed(1):'—';
+  const avgEmoji=moodCount?MOOD_EMOJIS[Math.round(moodTotal/moodCount)]:'—';
+  const streak=calcStreak(m,y,dim);
+
+  document.getElementById('monthSummary').innerHTML=`
+    <div class="ms-stat"><div class="ms-val">${dim}</div><div class="ms-lbl">Days in month</div></div>
+    <div class="ms-stat"><div class="ms-val">${entryCount}</div><div class="ms-lbl">Entries written</div></div>
+    <div class="ms-stat"><div class="ms-val">${streak}</div><div class="ms-lbl">Day streak</div></div>
+    <div class="ms-stat"><div class="ms-val">${avgEmoji}</div><div class="ms-lbl">Avg mood ${avgMood}</div></div>`;
+
+  // Calendar
+  const cal=document.getElementById('calGrid');
+  let html=DAYS.map(d=>`<div class="cal-day-hd">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const isTod=d===CUR_D&&m===CUR_M&&y===CUR_Y;
+    const isFut=new Date(y,m,d)>NOW&&!isTod;
+    const has=hasEntry(m,y,d);
+    const dayMood=getDayMood(m,y,d);
+    const moodMk=moods[`${pfx}-${String(d).padStart(2,'0')}`];
+    const moodEmoji=dayMood||(moodMk?moodMk.e:null);
+    // Get first line of text from entry for preview
+    const preview=getEntryPreview(m,y,d);
+    html+=`<div class="cal-cell ${isTod?'today':''} ${isFut?'future':''} ${has?'has-entry':''}" onclick="${isFut?'':(`openDay(${d})`)}">
+      ${has?'<div class="cal-has-badge"></div>':''}
+      <div class="cal-num">${d}</div>
+      ${moodEmoji?`<div class="cal-mood-dot">${moodEmoji}</div>`:(!has?'':'')}
+      ${preview?`<div class="cal-entry-preview">${preview}</div>`:''}
+    </div>`;
+  }
+  cal.innerHTML=html;
+}
+
+function calcStreak(m,y,dim){
+  let streak=0, broken=false;
+  const limit=m===CUR_M&&y===CUR_Y?CUR_D:dim;
+  for(let d=limit;d>=1;d--){
+    if(hasEntry(m,y,d)){if(!broken)streak++;}
+    else{broken=true;break;}
+  }
+  return streak;
+}
+
+function getEntryPreview(m,y,d){
+  try{
+    const raw=localStorage.getItem('motm-day-'+dayKey(m,y,d));
+    if(!raw)return'';
+    const p=JSON.parse(raw);
+    for(const sk of Object.keys(p.spreads||{})){
+      const s=p.spreads[sk];
+      for(const k of Object.keys(s||{})){
+        const v=s[k];
+        if(v&&typeof v==='string'&&v.length>2&&!k.includes('mood')&&k!=='drawing')
+          return v.slice(0,20);
+      }
+    }
+  }catch(e){}
+  return'';
+}
+
+// ════ DAY VIEW ════
+function openDay(d){
+  curDay=d;curSpread=0;
+  document.getElementById('month-screen').classList.remove('open');
+  document.getElementById('book-screen').classList.add('open');
+  const {m,y}=curMonth;
+  const dateObj=new Date(y,m,d);
+  document.getElementById('bookTitle').textContent=dateObj.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  buildTabs();
+  buildDayNav();
+  renderSpread();
+  setTimeout(syncCanvasSizes,80);
+}
+
+function closeDay(){
+  saveCurrentSpread();
+  document.getElementById('book-screen').classList.remove('open');
+  document.getElementById('month-screen').classList.add('open');
+  closePanel(openPanel);
+  buildMonthView(); // refresh calendar
+}
+
+function buildTabs(){
+  document.getElementById('tplTabs').innerHTML=TEMPLATES.map((t,i)=>
+    `<button class="tpl-tab ${i===0?'active':''}" onclick="goSpread(${i})">${t.name}</button>`
+  ).join('');
+}
+
+function buildDayNav(){
+  const {m,y}=curMonth;
+  const dim=new Date(y,m+1,0).getDate();
+  const bar=document.getElementById('dayNavBar');
+  let html='';
+  for(let d=1;d<=dim;d++){
+    const isTod=d===CUR_D&&m===CUR_M&&y===CUR_Y;
+    const isFut=new Date(y,m,d)>NOW&&!isTod;
+    const has=hasEntry(m,y,d);
+    html+=`<div class="day-pill ${d===curDay?'active':''} ${isTod?'today-pill':''} ${has?'has-entry':''} ${isFut?'future-day':''}" 
+      onclick="${isFut?'':(`switchDay(${d})`)}">${d}</div>`;
+  }
+  bar.innerHTML=html;
+  // Scroll to active
+  setTimeout(()=>{
+    const active=bar.querySelector('.day-pill.active');
+    if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  },100);
+}
+
+function switchDay(d){
+  if(d===curDay)return;
+  saveCurrentSpread();
+  curDay=d;curSpread=0;
+  const {m,y}=curMonth;
+  const dateObj=new Date(y,m,d);
+  document.getElementById('bookTitle').textContent=dateObj.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  buildDayNav();
+  buildTabs();
+  renderSpread();
+  setTimeout(syncCanvasSizes,60);
+}
+
+// ════ PAGE TURNING ════
+function goSpread(idx){
+  if(idx===curSpread)return;
+  saveCurrentSpread();
+  const fwd=idx>curSpread;
+  const lh=document.getElementById('leftHalf'),rh=document.getElementById('rightHalf');
+  if(!lh||!rh){curSpread=idx;renderSpread();return;}
+  const cls=fwd?'page-turning':'page-turning-r';
+  lh.classList.add(cls);rh.classList.add(cls);
+  setTimeout(()=>{
+    lh.classList.remove('page-turning','page-turning-r');
+    rh.classList.remove('page-turning','page-turning-r');
+    curSpread=idx;renderSpread();setTimeout(syncCanvasSizes,60);
+    document.querySelectorAll('.tpl-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  },280);
+}
+function turnPage(d){const n=curSpread+d;if(n>=0&&n<TEMPLATES.length)goSpread(n)}
+
+// ════ RENDER ════
+function renderSpread(){
+  if(!curMonth||!curDay)return;
+  const {m,y}=curMonth;
+  const tpl=TEMPLATES[curSpread];
+  const dayData=getDayData(m,y,curDay);
+  const md=getMonthData(m,y);
+  const lk=spreadKey(curSpread,'L'),rk=spreadKey(curSpread,'R');
+  const ls=dayData.spreads[lk]||{},rs=dayData.spreads[rk]||{};
+  const paper='paper-'+(md.paper||'Ruled').toLowerCase();
+
+  const lp=document.getElementById('leftPage'),rp=document.getElementById('rightPage');
+  lp.className='page-face '+paper;
+  rp.className='page-face '+paper;
+
+  resetCanvasBound();
+  lp.innerHTML=`<div class="sticker-layer" id="leftStickers"></div><canvas class="draw-canvas" id="leftCanvas"></canvas><div class="page-content" id="leftContent"></div><div class="page-turn-overlay"></div><span class="page-num" id="leftPageNum">${curSpread*2+1}</span>`;
+  rp.innerHTML=`<div class="sticker-layer" id="rightStickers"></div><canvas class="draw-canvas" id="rightCanvas"></canvas><div class="page-content" id="rightContent"></div><div class="page-turn-overlay-r"></div><span class="page-num" id="rightPageNum">${curSpread*2+2}</span>`;
+
+  document.getElementById('leftContent').innerHTML=buildPage(tpl.left,ls,md,m,y,curDay);
+  document.getElementById('rightContent').innerHTML=buildPage(tpl.right,rs,md,m,y,curDay);
+
+  document.getElementById('pageInfo')&&(document.getElementById('pageInfo').textContent=`${curSpread+1}/${TEMPLATES.length}`);
+  const pb=document.getElementById('prevBtn'),nb=document.getElementById('nextBtn');
+  if(pb)pb.disabled=curSpread===0;
+  if(nb)nb.disabled=curSpread===TEMPLATES.length-1;
+
+  restoreStickers('left',ls.stickers||[]);
+  restoreStickers('right',rs.stickers||[]);
+
+  setTimeout(()=>{
+    try{
+      restoreCanvas('left',ls.drawing);
+      restoreCanvas('right',rs.drawing);
+      syncCanvasSizes();
+      bindCanvasListeners();
+      autoBindInputs();
+      initAutoResize();
+      if(openPanel==='draw')enableDraw();
+      syncStickersActive();
+    }catch(err){console.warn('render post-tick:',err);}
+  },40);
+}
+
+// ════ PAGE BUILDERS ════
+function fmt(m,y,d){
+  return new Date(y,m,d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function inp(id,ph,saved){
+  const v=(saved&&saved[id])||'';
+  return `<textarea class="t-input" data-id="${id}" placeholder="${ph||''}" rows="1">${escHtml(v)}</textarea>`;
+}
+function ta(id,ph,saved){
+  const v=(saved&&saved[id])||'';
+  return `<textarea class="t-area" data-id="${id}" placeholder="${ph||''}">${escHtml(v)}</textarea>`;
+}
+function numList(base,n,saved){
+  return Array.from({length:n},(_,i)=>`<div class="t-num-row"><span class="t-num">${i+1}.</span>${inp(base+'_'+i,'',saved)}</div>`).join('');
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function moodPicker(id,saved){
+  const sel=(saved&&saved[id])||'';
+  return `<div class="mood-row" id="${id}_row">
+    ${MOOD_EMOJIS.map((e,i)=>`<span class="m-e ${sel===e?'on':''}" title="${MOOD_LABELS[i]}" onclick="pickMood('${id}',this,'${e}')">${e}</span>`).join('')}
+    <span class="mood-lbl" id="${id}_lbl">${sel?MOOD_LABELS[MOOD_EMOJIS.indexOf(sel)]:''}</span>
+  </div>`;
+}
+function getPatSVG(p){
+  const pats={
+    Dots:`<svg width="100%" height="100%"><defs><pattern id="pp" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="white"/></pattern></defs><rect width="100%" height="100%" fill="url(#pp)"/></svg>`,
+    Lines:`<svg width="100%" height="100%"><defs><pattern id="pp" x="0" y="0" width="100%" height="20" patternUnits="userSpaceOnUse"><line x1="0" y1="10" x2="100%" y2="10" stroke="white" stroke-width=".6"/></pattern></defs><rect width="100%" height="100%" fill="url(#pp)"/></svg>`,
+    Grid:`<svg width="100%" height="100%"><defs><pattern id="pp" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0L0 0 0 20" fill="none" stroke="white" stroke-width=".5"/></pattern></defs><rect width="100%" height="100%" fill="url(#pp)"/></svg>`,
+    Stars:`<svg width="100%" height="100%"><defs><pattern id="pp" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse"><text x="16" y="16" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="white">✦</text></pattern></defs><rect width="100%" height="100%" fill="url(#pp)"/></svg>`,
+    Waves:`<svg width="100%" height="100%"><defs><pattern id="pp" x="0" y="0" width="40" height="12" patternUnits="userSpaceOnUse"><path d="M0 6 Q10 0 20 6 Q30 12 40 6" fill="none" stroke="white" stroke-width=".6"/></pattern></defs><rect width="100%" height="100%" fill="url(#pp)"/></svg>`
+  };
+  return pats[p]||'';
+}
+
+function buildPage(layout,saved,md,m,y,d){
+  const dateStr=fmt(m,y,d);
+  const cc=md.coverColor||BOOK_COLORS[m][0];
+  switch(layout){
+
+    case 'daily-l': return `<div style="padding:1.5rem 1.7rem">
+      <div class="page-header" style="color:#2a3810;border-color:#2a3810">
+        <div class="page-header-title" style="color:#2a3810">Daily<br>Journal</div>
+        <div class="page-header-date">${dateStr}</div>
+      </div>
+      <div class="t-section"><span class="t-label">Give today a title</span>${inp('dj_title','What will you call today?',saved)}</div>
+      <div class="t-section"><span class="t-label">How are you feeling?</span>${moodPicker('dj_mood',saved)}${ta('dj_moodreason','Because…',saved)}</div>
+      <div class="t-section"><span class="t-label">Three things I'm grateful for</span>${numList('dj_grat',3,saved)}</div>
+      <div class="t-section"><span class="t-label">My goals & intentions today</span>${ta('dj_goals','What do I want to achieve?',saved)}</div>
+    </div>`;
+
+    case 'daily-r': return `<div style="padding:1.5rem 1.7rem">
+      <div class="t-section" style="margin-top:.3rem"><span class="t-label">Stream of consciousness</span>${ta('dj_stream','Write freely, no filter…',saved)}</div>
+      <div class="t-section"><span class="t-label">Three wins today</span>${numList('dj_win',3,saved)}</div>
+      <div class="t-section"><span class="t-label">Something I learned</span>${ta('dj_learn','',saved)}</div>
+      <div class="t-section"><span class="t-label">What I accomplished</span>${ta('dj_acc','',saved)}</div>
+      <div class="t-section"><span class="t-label">Evening reflection</span>${ta('dj_eve','Closing thoughts as the day ends…',saved)}</div>
+      <div class="t-section"><span class="t-label">One thing for tomorrow</span>${inp('dj_tomorrow','',saved)}</div>
+    </div>`;
+
+    case 'reflect-l': return `<div style="padding:1.5rem 1.7rem">
+      <div class="page-header" style="color:#1a4a8a;border-color:#1a4a8a">
+        <div style="font-family:'Caveat',cursive;font-size:1.9rem;font-weight:700;color:#1a4a8a;line-height:1.05">Self-Reflection<br>& Awareness</div>
+        <div class="page-header-date">${dateStr}</div>
+      </div>
+      <div class="t-section"><span class="t-label blue">Three things I'm grateful for</span>${numList('sr_grat',3,saved)}</div>
+      <div class="t-section"><span class="t-label blue">How do I feel right now and why?</span>${ta('sr_feel','Be honest with yourself…',saved)}</div>
+      <div class="t-section"><span class="t-label blue">Positive qualities I see in myself</span>${ta('sr_qual','Strengths I notice today…',saved)}</div>
+      <div class="t-section"><span class="t-label blue">Habits I want to change or improve</span>${ta('sr_habits','',saved)}</div>
+    </div>`;
+
+    case 'reflect-r': return `<div style="padding:1.5rem 1.7rem">
+      <div class="t-section" style="margin-top:.3rem"><span class="t-label blue">What can I do differently tomorrow?</span>${ta('sr_diff','One small change…',saved)}</div>
+      <div class="t-section"><span class="t-label blue">What am I most proud of today?</span>${ta('sr_proud','Big or small — all wins count…',saved)}</div>
+      <div class="t-section"><span class="t-label blue">What drained my energy today?</span>${ta('sr_drain','',saved)}</div>
+      <div class="t-section"><span class="t-label blue">What would my future self thank me for?</span>${ta('sr_future','',saved)}</div>
+      <div class="t-section"><span class="t-label blue">Free reflection</span>${ta('sr_free','Let thoughts flow freely…',saved)}</div>
+    </div>`;
+
+    case 'weekly-l': return `<div style="padding:1.5rem 1.7rem">
+      <div class="page-header" style="color:#0D5C63;border-color:#0D5C63">
+        <div class="page-header-title" style="color:#0D5C63">Week Planner</div>
+        <div class="page-header-date">${MONTHS[m]} ${y}</div>
+      </div>
+      <div class="t-section"><span class="t-label teal">Top 3 priorities this week</span>${numList('wk_pri',3,saved)}</div>
+      <div class="t-section"><span class="t-label teal">Weekly focus intention</span>${ta('wk_focus','What do I want to bring energy to?',saved)}</div>
+      ${['Monday','Tuesday','Wednesday'].map(day=>`
+      <div class="t-section"><span class="t-label teal">${day}</span>${ta('wk_'+day.toLowerCase(),'Plans, tasks, thoughts…',saved)}</div>`).join('')}
+    </div>`;
+
+    case 'weekly-r': return `<div style="padding:1.5rem 1.7rem">
+      <div style="height:.5rem"></div>
+      ${['Thursday','Friday','Saturday','Sunday'].map(day=>`
+      <div class="t-section"><span class="t-label teal">${day}</span>${ta('wk_'+day.toLowerCase(),'',saved)}</div>`).join('')}
+      <div class="t-section"><span class="t-label teal">What I learned this week</span>${ta('wk_learned','Key insight or lesson…',saved)}</div>
+      <div class="t-section"><span class="t-label teal">How I want to show up next week</span>${ta('wk_next','',saved)}</div>
+    </div>`;
+
+    case 'gratitude-l': return `<div style="padding:1.5rem 1.7rem">
+      <div class="page-header" style="color:#2e6b4e;border-color:#2e6b4e">
+        <div style="font-family:'Caveat',cursive;font-size:2rem;font-weight:700;color:#2e6b4e;line-height:1.05">Gratitude Journal</div>
+        <div class="page-header-date">${dateStr}</div>
+      </div>
+      <div class="t-section"><span class="t-label green">Today I am grateful for…</span>${numList('gr_main',5,saved)}</div>
+      <div class="t-section"><span class="t-label green">A person who made my day better</span>${ta('gr_person','',saved)}</div>
+      <div class="t-section"><span class="t-label green">Something beautiful I noticed</span>${ta('gr_beauty','A colour, sound, moment…',saved)}</div>
+    </div>`;
+
+    case 'gratitude-r': return `<div style="padding:1.5rem 1.7rem">
+      <div style="font-family:'Caveat',cursive;font-size:1.9rem;font-weight:700;color:#6a3a8a;line-height:1;margin-bottom:.15rem">Affirmations</div>
+      <div style="font-size:.65rem;color:#aaa;margin-bottom:.9rem;font-style:italic">Speak kindly to yourself</div>
+      <div class="t-section"><span class="t-label purple">I am…</span>${numList('aff_iam',3,saved)}</div>
+      <div class="t-section"><span class="t-label purple">I have…</span>${numList('aff_have',3,saved)}</div>
+      <div class="t-section"><span class="t-label purple">I can…</span>${numList('aff_can',3,saved)}</div>
+      <div class="t-section"><span class="t-label purple">Today I choose to…</span>${ta('aff_choose','',saved)}</div>
+      <div class="t-section"><span class="t-label purple">My word for today</span>${inp('aff_word','One word that guides me…',saved)}</div>
+      <div class="t-section"><span class="t-label purple">A message to my future self</span>${ta('aff_msg','Dear future me…',saved)}</div>
+    </div>`;
+
+    case 'mindful-l': return `<div style="padding:1.5rem 1.7rem">
+      <div class="page-header" style="color:#2a7a6a;border-color:#2a7a6a">
+        <div class="page-header-title" style="color:#2a7a6a">Mindfulness</div>
+        <div class="page-header-date">${dateStr}</div>
+      </div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">Check in — how am I right now?</span>${moodPicker('mf_mood',saved)}${ta('mf_checkin','Body, mind, emotions…',saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">5 things I can see</span>${numList('mf_see',5,saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">4 things I can feel / touch</span>${numList('mf_touch',4,saved)}</div>
+    </div>`;
+
+    case 'mindful-r': return `<div style="padding:1.5rem 1.7rem">
+      <div style="height:.5rem"></div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">3 things I can hear</span>${numList('mf_hear',3,saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">What thoughts are filling my mind?</span>${ta('mf_thoughts','Without judgement, just observe…',saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">What am I holding on to that I can release?</span>${ta('mf_release','',saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">A kind thing I did for myself today</span>${ta('mf_kind','',saved)}</div>
+      <div class="t-section"><span class="t-label" style="color:#2a7a6a">My intention for tomorrow</span>${ta('mf_intent','',saved)}</div>
+    </div>`;
+
+    case 'free': return `<div style="padding:1.5rem 1.7rem;height:100%;display:flex;flex-direction:column">
+      <div style="font-family:'Caveat',cursive;font-size:1.55rem;font-weight:600;color:rgba(0,0,0,.18);margin-bottom:.4rem">Free Write — ${dateStr}</div>
+      ${ta('free_text','Let your thoughts flow without judgement…',saved)}
+    </div>`;
+
+    case 'free2': return `<div style="padding:1.5rem 1.7rem;height:100%;display:flex;flex-direction:column">
+      <div style="font-family:'Caveat',cursive;font-size:1.55rem;font-weight:600;color:rgba(0,0,0,.12);margin-bottom:.4rem">…continued</div>
+      ${ta('free2_text','',saved)}
+    </div>`;
+
+    default: return `<div style="padding:1.5rem;color:#ccc;font-style:italic">Page</div>`;
+  }
+}
+
+// ════ SAVE / LOAD ════
+function autoBindInputs(){
+  document.querySelectorAll('#leftContent [data-id], #rightContent [data-id]').forEach(el=>{
+    el.addEventListener('input',()=>scheduleSave());
+  });
+}
+
+function initAutoResize(){
+  document.querySelectorAll('.t-input, .t-area').forEach(el=>{
+    try{
+      el.style.height='auto';
+      el.style.height=Math.max(el.scrollHeight,28)+'px';
+      el.addEventListener('input',function(){
+        this.style.height='auto';
+        this.style.height=Math.max(this.scrollHeight,28)+'px';
+      });
+    }catch(e){}
+  });
+}
+
+function scheduleSave(){
+  const dot=document.getElementById('saveDot');
+  if(dot){dot.classList.add('saving');dot.classList.remove('saved');}
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveCurrentSpread,900);
+}
+
+function flashDot(){
+  const d=document.getElementById('saveDot');
+  if(!d)return;
+  d.classList.remove('saving');d.classList.add('saved');
+  setTimeout(()=>d.classList.remove('saved'),2500);
+}
+
+function saveCurrentSpread(){
+  if(!curMonth||!curDay)return;
+  try{
+    const {m,y}=curMonth;
+    const data=getDayData(m,y,curDay);
+    const lk=spreadKey(curSpread,'L'),rk=spreadKey(curSpread,'R');
+    if(!data.spreads[lk])data.spreads[lk]={};
+    if(!data.spreads[rk])data.spreads[rk]={};
+
+    document.querySelectorAll('#leftContent [data-id]').forEach(el=>{
+      if(el&&el.dataset&&el.dataset.id)
+        data.spreads[lk][el.dataset.id]=el.value!==undefined?el.value:(el.innerText||'');
+    });
+    document.querySelectorAll('#rightContent [data-id]').forEach(el=>{
+      if(el&&el.dataset&&el.dataset.id)
+        data.spreads[rk][el.dataset.id]=el.value!==undefined?el.value:(el.innerText||'');
+    });
+
+    try{
+      const lc=document.getElementById('leftCanvas');
+      if(lc&&lc.width>0&&lc.height>0)data.spreads[lk].drawing=lc.toDataURL();
+    }catch(e){}
+    try{
+      const rc=document.getElementById('rightCanvas');
+      if(rc&&rc.width>0&&rc.height>0)data.spreads[rk].drawing=rc.toDataURL();
+    }catch(e){}
+
+    data.spreads[lk].stickers=getStickersData('left');
+    data.spreads[rk].stickers=getStickersData('right');
+
+    saveDayData(m,y,curDay,data);
+    flashDot();
+  }catch(err){console.warn('save error:',err);}
+}
+
+function getStickersData(side){
+  try{
+    const layer=document.getElementById(side+'Stickers');
+    if(!layer)return[];
+    return[...layer.querySelectorAll('.sticker-item')].map(s=>({e:(s.textContent||'').trim(),l:parseFloat(s.style.left)||10,t:parseFloat(s.style.top)||10})).filter(s=>s.e);
+  }catch(e){return[];}
+}
+
+function restoreCanvas(side,data){
+  if(!data||data==='data:,'||typeof data!=='string')return;
+  const canvas=document.getElementById(side+'Canvas');
+  if(!canvas)return;
+  const img=new Image();
+  img.onload=()=>{try{canvas.getContext('2d').drawImage(img,0,0);}catch(e){}};
+  img.src=data;
+}
+
+function restoreStickers(side,arr){
+  if(!Array.isArray(arr))return;
+  arr.forEach(s=>{if(s&&s.e)addStickerToPage(s.e,side,s.l||10,s.t||10);});
+}
+
+// ════ CANVAS ════
+function syncCanvasSizes(){
+  ['left','right'].forEach(side=>{
+    const canvas=document.getElementById(side+'Canvas');
+    const half=document.getElementById(side+'Half');
+    if(!canvas||!half)return;
+    const w=half.offsetWidth, h=half.offsetHeight;
+    if(canvas.width!==w||canvas.height!==h){
+      const tmp=(canvas.width>0&&canvas.height>0)?canvas.toDataURL():null;
+      canvas.width=w;canvas.height=h;
+      if(tmp){const img=new Image();img.onload=()=>{try{canvas.getContext('2d').drawImage(img,0,0);}catch(e){}};img.src=tmp;}
+    }
+  });
+}
+function enableDraw(){['left','right'].forEach(side=>{const c=document.getElementById(side+'Canvas');if(c)c.classList.add('drawing');})}
+function disableDraw(){['left','right'].forEach(side=>{const c=document.getElementById(side+'Canvas');if(c)c.classList.remove('drawing');})}
+
+function startPaint(e,side){
+  const c=document.getElementById(side+'Canvas');
+  if(!c||!c.classList.contains('drawing'))return;
+  painting=true;activeCanvas=c;activeCtx=c.getContext('2d');
+  const r=c.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  lx=cx-r.left;ly=cy-r.top;
+  activeCtx.beginPath();activeCtx.moveTo(lx,ly);
+  e.preventDefault();
+}
+function doPaint(e){
+  if(!painting||!activeCtx)return;
+  const r=activeCanvas.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  const x=cx-r.left, y=cy-r.top;
+  activeCtx.lineWidth=brushSz;activeCtx.lineCap='round';activeCtx.lineJoin='round';
+  if(drawMode==='eraser'){activeCtx.globalCompositeOperation='destination-out';activeCtx.strokeStyle='rgba(0,0,0,1)';}
+  else{activeCtx.globalCompositeOperation='source-over';activeCtx.strokeStyle=drawColor;}
+  activeCtx.lineTo(x,y);activeCtx.stroke();
+  activeCtx.beginPath();activeCtx.moveTo(x,y);
+  lx=x;ly=y;scheduleSave();e.preventDefault();
+}
+function stopPaint(){painting=false;if(activeCtx)activeCtx.beginPath();}
+
+document.addEventListener('mousemove',doPaint);
+document.addEventListener('mouseup',stopPaint);
+document.addEventListener('touchmove',doPaint,{passive:false});
+document.addEventListener('touchend',stopPaint);
+
+function bindCanvasListeners(){
+  ['left','right'].forEach(side=>{
+    const c=document.getElementById(side+'Canvas');
+    if(!c||c._bound)return;
+    c._bound=true;
+    c.addEventListener('mousedown',e=>startPaint(e,side));
+    c.addEventListener('touchstart',e=>startPaint(e,side),{passive:false});
+  });
+}
+function resetCanvasBound(){
+  ['left','right'].forEach(side=>{const c=document.getElementById(side+'Canvas');if(c)delete c._bound;});
+}
+function setMode(m){
+  drawMode=m;
+  document.getElementById('penBtn').classList.toggle('on',m==='pen');
+  document.getElementById('eraserBtn').classList.toggle('on',m==='eraser');
+}
+function clearCanvas(){
+  ['left','right'].forEach(side=>{const c=document.getElementById(side+'Canvas');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);});
+  scheduleSave();
+}
+
+// ════ PANELS ════
+function togglePanel(name){
+  if(openPanel===name){closePanel(name);return;}
+  closePanel(openPanel);openPanel=name;
+  const map={draw:'drawPanel',sticker:'stickerPanel',cover:'coverPanel'};
+  const bmap={draw:'drawBtn',sticker:'stickerBtn',cover:'coverBtn'};
+  document.getElementById(map[name])?.classList.add('open');
+  document.getElementById(bmap[name])?.classList.add('active');
+  if(name==='draw')enableDraw();else disableDraw();
+  syncStickersActive();
+}
+function closePanel(name){
+  openPanel=null;
+  document.querySelectorAll('.side-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.btb-btn').forEach(b=>b.classList.remove('active'));
+  disableDraw();syncStickersActive();
+}
+function syncStickersActive(){
+  ['left','right'].forEach(side=>{
+    const layer=document.getElementById(side+'Stickers');
+    if(layer)layer.classList.toggle('active',openPanel==='sticker');
+  });
+}
+
+// ════ DRAW PANEL ════
+function buildDrawPanel(){
+  const colors=['#1a1a1a','#c03030','#c06020','#c0a020','#2e7d30','#1a5c9e','#7a2a9e','#c05080','#40a0c0','#88664a','#aaa','#fff'];
+  document.getElementById('drawColors').innerHTML=colors.map(c=>
+    `<div class="dc ${c===drawColor?'on':''}" style="background:${c};${c==='#fff'?'border:1px solid #ccc':''}" data-c="${c}" onclick="pickColor('${c}',this)"></div>`
+  ).join('');
+  const bs=document.getElementById('brushSize'),bsv=document.getElementById('bsVal');
+  bs.oninput=()=>{brushSz=+bs.value;bsv.textContent=bs.value;};
+}
+function pickColor(c,el){
+  drawColor=c;drawMode='pen';setMode('pen');
+  document.querySelectorAll('.dc').forEach(d=>d.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ════ STICKER PANEL ════
+function buildStickerPanel(){
+  document.getElementById('stickerBody').innerHTML=Object.entries(STICKER_CATS).map(([cat,stickers])=>`
+    <div class="sp-sec">
+      <div class="sp-sec-title">${cat}</div>
+      <div class="stk-grid">${stickers.map(s=>`<div class="stk-pick" onclick="dropSticker('${s}')">${s}</div>`).join('')}</div>
+    </div>`).join('');
+}
+function dropSticker(emoji){addStickerToPage(emoji,'left',10+Math.random()*70,10+Math.random()*70);scheduleSave();}
+function addStickerToPage(emoji,side,lPct,tPct){
+  const layer=document.getElementById(side+'Stickers');
+  if(!layer)return;
+  const el=document.createElement('div');
+  el.className='sticker-item';el.textContent=emoji;
+  el.style.left=lPct+'%';el.style.top=tPct+'%';
+  makeDraggable(el,layer);
+  el.addEventListener('dblclick',()=>{el.remove();scheduleSave();});
+  layer.appendChild(el);
+}
+function makeDraggable(el,container){
+  let sx,sy,sl,st;
+  const down=e=>{
+    e.stopPropagation();
+    const c=e.touches?e.touches[0]:e;
+    sx=c.clientX;sy=c.clientY;sl=parseFloat(el.style.left)||0;st=parseFloat(el.style.top)||0;
+    const mv=e=>{
+      const c=e.touches?e.touches[0]:e;
+      el.style.left=Math.max(0,Math.min(90,sl+(c.clientX-sx)/container.offsetWidth*100))+'%';
+      el.style.top=Math.max(0,Math.min(90,st+(c.clientY-sy)/container.offsetHeight*100))+'%';
+    };
+    const up=()=>{scheduleSave();document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);};
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+    document.addEventListener('touchmove',mv,{passive:true});document.addEventListener('touchend',up);
+  };
+  el.addEventListener('mousedown',down);el.addEventListener('touchstart',down,{passive:true});
+}
+
+// ════ COVER / STYLE PANEL ════
+function buildCoverPanel(){
+  document.getElementById('coverSwatches').innerHTML=COVER_SWATCHES.map(c=>
+    `<div class="cv-sw" style="background:${c}" data-c="${c}" onclick="setCoverColor('${c}',this)"></div>`
+  ).join('');
+  document.getElementById('patternBtns').innerHTML=PATTERNS.map(p=>
+    `<button class="pat-btn ${p==='None'?'on':''}" data-p="${p}" onclick="setCoverPat('${p}',this)">${p}</button>`
+  ).join('');
+  document.getElementById('paperBtns').innerHTML=PAPER_STYLES.map(p=>
+    `<button class="pat-btn" data-p="${p}" onclick="setPaper('${p}',this)">${p}</button>`
+  ).join('');
+}
+function setCoverColor(c,el){
+  if(!curMonth)return;
+  const {m,y}=curMonth;
+  const d=getMonthData(m,y);d.coverColor=c;saveMonthData(m,y,d);
+  document.querySelectorAll('.cv-sw').forEach(s=>s.classList.toggle('on',s.dataset.c===c));
+}
+function setCoverPat(p,el){
+  if(!curMonth)return;
+  const {m,y}=curMonth;
+  const d=getMonthData(m,y);d.pattern=p;saveMonthData(m,y,d);
+  document.querySelectorAll('#patternBtns .pat-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+}
+function setPaper(p,el){
+  if(!curMonth)return;
+  const {m,y}=curMonth;
+  const d=getMonthData(m,y);d.paper=p;saveMonthData(m,y,d);
+  document.querySelectorAll('#paperBtns .pat-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  if(curDay)renderSpread();
+}
+function setCoverTitle(v){
+  if(!curMonth)return;
+  const {m,y}=curMonth;
+  const d=getMonthData(m,y);d.title=v;saveMonthData(m,y,d);
+}
+
+// ════ MOOD PICKER ════
+function pickMood(id,el,emoji){
+  el.parentElement?.querySelectorAll('.m-e').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  const lbl=document.getElementById(id+'_lbl');
+  if(lbl)lbl.textContent=MOOD_LABELS[MOOD_EMOJIS.indexOf(emoji)]||'';
+  scheduleSave();
+}
+
+// ════ UTILS ════
+function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function go(h){document.body.style.opacity='0';setTimeout(()=>window.location.href=h,280);}
+
+document.addEventListener('keydown',e=>{
+  const bs=document.getElementById('book-screen');
+  if(!bs||!bs.classList.contains('open'))return;
+  if(e.key==='ArrowRight')turnPage(1);
+  if(e.key==='ArrowLeft')turnPage(-1);
+  if(e.key==='Escape')closePanel(openPanel);
+});
+window.addEventListener('resize',()=>setTimeout(syncCanvasSizes,100));
+
+document.addEventListener('DOMContentLoaded',()=>{
+  buildShelf();
+  buildDrawPanel();
+  buildStickerPanel();
+  buildCoverPanel();
+});
+</script>
+</body>
+</html>

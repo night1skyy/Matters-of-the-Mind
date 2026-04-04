@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Helplines — Matters of the Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F2EC;--ink:#1C1A15;--teal:#0D5C63;--teal2:#44A1A0;
+  --pale:#EBE7DE;--white:#FFFFFF;--red:#C0392B;
+  --line:rgba(28,26,21,.12);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Jost',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.7;opacity:0;animation:appear .6s ease forwards}
+@keyframes appear{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+body.leaving{opacity:0;transform:translateY(-12px);transition:all .32s ease}
+
+.nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3.5rem;background:rgba(245,242,236,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--ink);text-decoration:none;transition:color .2s}
+.logo:hover{color:var(--teal)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-link{font-size:.73rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-decoration:none;transition:color .2s}
+.nav-link:hover,.nav-link.active{color:var(--teal)}
+.nav-cta{font-size:.73rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--teal);padding:.5rem 1.4rem;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--teal2)}
+.dd-wrap{position:relative}
+.dd-btn{font-size:.73rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:none;border:none;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:.32rem;transition:color .2s}
+.dd-btn:hover{color:var(--teal)}
+.dd-btn svg{width:10px;height:10px;stroke:currentColor;fill:none;transition:transform .22s}
+.dd-btn.open svg{transform:rotate(180deg)}
+.dd-panel{position:absolute;top:calc(100% + .8rem);left:50%;min-width:200px;background:var(--white);border:1px solid var(--line);box-shadow:0 12px 40px rgba(28,26,21,.1);padding:.45rem;opacity:0;transform:translateX(-50%) translateY(-8px);pointer-events:none;transition:opacity .22s,transform .22s}
+.dd-panel.open{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all}
+.dd-panel a{display:block;padding:.58rem .88rem;font-size:.8rem;color:var(--ink);text-decoration:none;transition:background .16s}
+.dd-panel a:hover{background:var(--pale);color:var(--teal)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.3rem}
+.hamburger span{display:block;width:22px;height:1.5px;background:var(--ink)}
+.mob-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:99;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.mob-overlay.open{display:flex}
+.mob-overlay a{font-family:var(--serif);font-size:1.9rem;font-style:italic;color:var(--ink);text-decoration:none}
+.mob-overlay a:hover{color:var(--teal)}
+.mob-close{position:absolute;top:1.4rem;right:2rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink)}
+
+.sr{opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease}
+.sr.in{opacity:1;transform:translateY(0)}
+.sr.d1{transition-delay:.1s}.sr.d2{transition-delay:.2s}.sr.d3{transition-delay:.32s}
+
+/* EMERGENCY BANNER */
+.em-banner{background:var(--red);padding:1rem 3.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.em-banner p{font-size:.88rem;color:#fff;line-height:1.45}
+.em-banner strong{font-weight:700}
+.em-call{display:inline-flex;align-items:center;gap:.55rem;background:#fff;color:var(--red);font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem 1.4rem;text-decoration:none;flex-shrink:0;transition:all .2s}
+.em-call:hover{background:var(--pale)}
+.em-call svg{width:14px;height:14px;stroke:currentColor;fill:none}
+
+/* PAGE HERO */
+.page-hero{padding:5rem 3.5rem 4rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1.1fr .9fr;gap:3.5rem;align-items:end}
+.hero-tag{font-size:.62rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem}
+.hero-tag::before{content:'';width:24px;height:1px;background:var(--teal)}
+.hero-h{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(2.4rem,4vw,3.8rem);color:var(--ink);line-height:1.06;margin-bottom:.9rem}
+.hero-h strong{font-weight:700;font-style:normal}
+.hero-sub{font-size:.94rem;font-weight:300;color:rgba(28,26,21,.6);line-height:1.78;max-width:400px}
+.crisis-panel{background:var(--ink);padding:2.2rem}
+.crisis-panel h3{font-family:var(--serif);font-style:italic;font-size:1.3rem;color:#fff;margin-bottom:1.2rem;line-height:1.2}
+.cs{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:.95rem}
+.cs-n{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:rgba(255,255,255,.22);line-height:1;flex-shrink:0;width:22px}
+.cs-t strong{display:block;font-size:.82rem;font-weight:600;color:#fff;margin-bottom:.12rem}
+.cs-t p{font-size:.78rem;font-weight:300;color:rgba(255,255,255,.52);line-height:1.55}
+.crisis-btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--teal);color:#fff;font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.75rem 1.6rem;text-decoration:none;margin-top:.4rem;transition:all .22s}
+.crisis-btn:hover{background:var(--teal2)}
+.crisis-btn svg{width:14px;height:14px;stroke:currentColor;fill:none}
+
+/* SECTION HDR */
+.sec-hdr{padding:3rem 3.5rem 2rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem}
+.sh-lab{font-size:.6rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem}
+.sh-lab::before{content:'';width:18px;height:1px;background:var(--teal)}
+.sh-h2{font-family:var(--serif);font-weight:700;font-size:1.65rem;color:var(--ink)}
+.sh-note{font-size:.8rem;font-weight:300;color:rgba(28,26,21,.5);max-width:300px;line-height:1.65;text-align:right}
+
+/* HELPLINE CARDS */
+.hlp-grid{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--line)}
+.hcard{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:2rem 2.4rem;position:relative;overflow:hidden;transition:background .25s}
+.hcard:hover{background:var(--pale)}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.hcard.a::before{background:var(--teal)}
+.hcard.b::before{background:#2C7A7B}
+.hcard.c::before{background:var(--red)}
+.hcard.d::before{background:#7D3C98}
+.card-org{font-size:.58rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal2);margin-bottom:.5rem;margin-top:.2rem;display:block}
+.card-name{font-family:var(--serif);font-weight:700;font-size:1.25rem;color:var(--ink);margin-bottom:.45rem;line-height:1.2}
+.card-desc{font-size:.83rem;font-weight:300;color:rgba(28,26,21,.62);line-height:1.68;margin-bottom:1.3rem}
+.call-btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--ink);color:#fff;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:all .25s}
+.call-btn:hover{background:var(--teal);transform:translateY(-2px)}
+.call-btn svg{width:14px;height:14px;stroke:currentColor;fill:none}
+.card-tags{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--line)}
+.ctag{font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(28,26,21,.48);background:var(--pale);padding:.18rem .6rem}
+.ctag.hi{background:rgba(13,92,99,.1);color:var(--teal)}
+
+/* ALSO & TIPS */
+.two-col{padding:3.5rem 3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;border-top:1px solid var(--line)}
+.col-h{font-family:var(--serif);font-weight:700;font-size:1.35rem;color:var(--ink);margin-bottom:1.4rem;padding-bottom:.9rem;border-bottom:2px solid var(--teal)}
+.item-list{display:flex;flex-direction:column;gap:.85rem}
+.item{padding:1rem 1.2rem;background:var(--white);border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;transition:border-color .2s}
+.item:hover{border-color:var(--teal2)}
+.item-name{font-size:.88rem;font-weight:500;color:var(--ink);margin-bottom:.14rem}
+.item-detail{font-size:.75rem;font-weight:300;color:rgba(28,26,21,.52)}
+.item-link{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(13,92,99,.3);padding-bottom:.1rem;flex-shrink:0;transition:all .2s}
+.item-link:hover{color:var(--ink);border-color:var(--ink)}
+
+/* TIPS BAND */
+.tips-band{border-top:1px solid var(--line);background:var(--pale);padding:3.5rem 3.5rem}
+.tips-band h3{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--ink);margin-bottom:1.8rem}
+.tips-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.tip{background:var(--white);border:1px solid var(--line);padding:1.4rem 1.5rem}
+.tip-icon{font-size:1.4rem;display:block;margin-bottom:.65rem}
+.tip-h{font-family:var(--serif);font-weight:700;font-size:.98rem;color:var(--ink);margin-bottom:.42rem}
+.tip-p{font-size:.82rem;font-weight:300;color:rgba(28,26,21,.62);line-height:1.65}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:2.8rem 3.5rem 2.2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+.ft-logo{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink);text-decoration:none}
+.ft-links{display:flex;gap:1.6rem;flex-wrap:wrap}
+.ft-links a{font-size:.74rem;font-weight:400;letter-spacing:.06em;color:rgba(28,26,21,.52);text-decoration:none;transition:color .2s}
+.ft-links a:hover{color:var(--teal)}
+.ft-crisis{font-size:.74rem;font-weight:300;color:rgba(28,26,21,.42)}
+.ft-crisis a{color:var(--red);font-weight:700;text-decoration:none}
+
+#toast{position:fixed;bottom:2rem;right:2rem;background:var(--ink);color:#fff;padding:.65rem 1.3rem;font-size:.78rem;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .nav{padding:.9rem 1.5rem}
+  .nav-links .dd-wrap,.nav-link:not(.nav-cta){display:none}
+  .hamburger{display:flex}
+  .em-banner,.page-hero,.sec-hdr,.two-col,.tips-band,footer{padding-left:1.5rem;padding-right:1.5rem}
+  .page-hero,.two-col{grid-template-columns:1fr}
+  .hlp-grid{grid-template-columns:1fr}
+  .tips-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){.tips-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<nav class="nav" id="mn">
+  <a href="index.html" class="logo" data-nav>Matters of the Mind</a>
+  <div class="nav-links">
+    <div class="dd-wrap" id="ddw">
+      <button class="dd-btn" id="ddb" onclick="toggleDD()">
+        Handbook <svg viewBox="0 0 10 10" stroke-width="1.8"><polyline points="1,3 5,7 9,3"/></svg>
+      </button>
+      <div class="dd-panel" id="ddp">
+        <a href="wellbeing.html" data-nav>Well-being</a>
+        <a href="emotions.html" data-nav>Emotions</a>
+        <a href="barriers.html" data-nav>Barriers</a>
+        <a href="ai-support.html" data-nav>AI &amp; Support</a>
+        <a href="toolkit.html" data-nav>Wellness Toolkit</a>
+      </div>
+    </div>
+    <a href="helplines.html" class="nav-link active">Helplines</a>
+    <a href="helplines.html" class="nav-cta">Get Help</a>
+  </div>
+  <button class="hamburger" onclick="toggleMob()"><span></span><span></span><span></span></button>
+</nav>
+<div class="mob-overlay" id="mob">
+  <button class="mob-close" onclick="toggleMob()">&#10005;</button>
+  <a href="index.html" data-nav>Home</a>
+  <a href="wellbeing.html" data-nav>Well-being</a>
+  <a href="toolkit.html" data-nav>Toolkit</a>
+  <a href="helplines.html">Helplines</a>
+</div>
+
+<!-- EMERGENCY BANNER -->
+<div class="em-banner">
+  <p><strong>Are you in immediate crisis?</strong> Call India's national emergency line right now — no questions asked.</p>
+  <a href="tel:112" class="em-call">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+    Call 112 — Emergency
+  </a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="sr">
+    <div class="hero-tag">Helplines &amp; Support</div>
+    <h1 class="hero-h">Free, confidential<br><strong>support — always.</strong></h1>
+    <p class="hero-sub">Every number listed is free to call, confidential, and staffed by trained professionals. There is no wrong reason to reach out. You deserve support.</p>
+  </div>
+  <div class="crisis-panel sr d2">
+    <h3>If someone is in immediate danger</h3>
+    <div class="cs"><div class="cs-n">1</div><div class="cs-t"><strong>Stay with them</strong><p>Don't leave them alone. Your presence matters more than words.</p></div></div>
+    <div class="cs"><div class="cs-n">2</div><div class="cs-t"><strong>Listen without judgement</strong><p>You don't need to fix anything. Just be there and listen.</p></div></div>
+    <div class="cs"><div class="cs-n">3</div><div class="cs-t"><strong>Call for professional help</strong><p>iCall (9152987821) or emergency services (112).</p></div></div>
+    <a href="tel:9152987821" class="crisis-btn">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+      Call iCall: 9152987821
+    </a>
+  </div>
+</div>
+
+<!-- HELPLINES HEADER -->
+<div class="sec-hdr sr">
+  <div>
+    <div class="sh-lab">India Verified Helplines</div>
+    <h2 class="sh-h2">All lines are free &amp; confidential</h2>
+  </div>
+  <p class="sh-note">Tap any number to call directly from your phone. Numbers are verified and operated by recognised organisations.</p>
+</div>
+
+<!-- HELPLINES GRID -->
+<div class="hlp-grid">
+
+  <div class="hcard a sr d1">
+    <span class="card-org">Tata Institute of Social Sciences</span>
+    <div class="card-name">iCall</div>
+    <p class="card-desc">India's most reputable mental health helpline, run by TISS Mumbai. Trained counsellors offer non-judgmental emotional support, referrals, and ongoing care. Available in English and Hindi.</p>
+    <a href="tel:9152987821" class="call-btn">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+      Call 9152987821
+    </a>
+    <div class="card-tags">
+      <span class="ctag hi">Mon–Sat · 8am–10pm</span>
+      <span class="ctag">English &amp; Hindi</span>
+      <span class="ctag">Free</span>
+    </div>
+  </div>
+
+  <div class="hcard b sr d2">
+    <span class="card-org">Vandrevala Foundation</span>
+    <div class="card-name">24/7 Mental Health Helpline</div>
+    <p class="card-desc">A free, 24-hour multilingual helpline operating across India. Supports people experiencing crisis, emotional distress, depression, anxiety, and relationship difficulties. Available in 15 languages.</p>
+    <a href="tel:18602662345" class="call-btn">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+      Call 1860-2662-345
+    </a>
+    <div class="card-tags">
+      <span class="ctag hi">24 Hours · 7 Days</span>
+      <span class="ctag">Multilingual</span>
+      <span class="ctag">Free</span>
+    </div>
+  </div>
+
+  <div class="hcard c sr d1">
+    <span class="card-org">AASRA · Mumbai</span>
+    <div class="card-name">Crisis &amp; Suicide Prevention</div>
+    <p class="card-desc">India's best-known crisis support organisation. Available around the clock for anyone feeling overwhelmed, suicidal, or in acute emotional distress. Trained volunteer listeners — available every day of the year.</p>
+    <a href="tel:9820466627" class="call-btn" style="background:var(--red)">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+      Call 98204 66627
+    </a>
+    <div class="card-tags">
+      <span class="ctag hi">24 Hours · 365 Days</span>
+      <span class="ctag">Crisis &amp; Suicide Prevention</span>
+      <span class="ctag">Free</span>
+    </div>
+  </div>
+
+  <div class="hcard d sr d2">
+    <span class="card-org">National Institute of Mental Health &amp; Neurosciences</span>
+    <div class="card-name">NIMHANS Helpline</div>
+    <p class="card-desc">India's premier mental health institution based in Bangalore. Their helpline offers professional emotional support and psychiatric guidance from trained professionals. A direct line to expert care.</p>
+    <a href="tel:08046110007" class="call-btn">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M22 16.9a18 18 0 0 1-5.2 1.1 17.9 17.9 0 0 1-12.8-5A17.9 17.9 0 0 1 3 7.2 18 18 0 0 1 4.1 2H8l2 5-2.5 2.5a16 16 0 0 0 6.9 6.9L17 14l5 2z"/></svg>
+      Call 080-4611-0007
+    </a>
+    <div class="card-tags">
+      <span class="ctag hi">Professional Support</span>
+      <span class="ctag">Psychiatric Guidance</span>
+      <span class="ctag">Free</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ALSO USEFUL + TIPS -->
+<div class="two-col">
+  <div class="sr">
+    <h3 class="col-h">Online &amp; additional support</h3>
+    <div class="item-list">
+      <div class="item">
+        <div><div class="item-name">iCall — Email Support</div><div class="item-detail">For non-urgent support in writing</div></div>
+        <a href="mailto:icall@tiss.edu" class="item-link">icall@tiss.edu</a>
+      </div>
+      <div class="item">
+        <div><div class="item-name">YourDost</div><div class="item-detail">Chat with verified professionals online</div></div>
+        <a href="https://yourdost.com" target="_blank" rel="noopener" class="item-link">Visit site</a>
+      </div>
+      <div class="item">
+        <div><div class="item-name">Mindpeers</div><div class="item-detail">Therapists and coaches via app</div></div>
+        <a href="https://www.mindpeers.co" target="_blank" rel="noopener" class="item-link">Visit site</a>
+      </div>
+      <div class="item">
+        <div><div class="item-name">Lissun</div><div class="item-detail">Affordable online therapy &amp; counselling</div></div>
+        <a href="https://www.lissun.app" target="_blank" rel="noopener" class="item-link">Visit site</a>
+      </div>
+    </div>
+  </div>
+  <div class="sr d2">
+    <h3 class="col-h">Helping a friend in crisis</h3>
+    <div class="item-list">
+      <div class="item"><div><div class="item-name">Listen before you advise</div><div class="item-detail">Ask open questions. Don't minimise what they're feeling.</div></div></div>
+      <div class="item"><div><div class="item-name">Don't keep it secret</div><div class="item-detail">If they mention self-harm, involve a trusted adult or call iCall together.</div></div></div>
+      <div class="item"><div><div class="item-name">Check in again the next day</div><div class="item-detail">A single text — "how are you today?" — can mean everything.</div></div></div>
+      <div class="item"><div><div class="item-name">Look after yourself too</div><div class="item-detail">Supporting someone in crisis is hard. It's okay to need support too.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TIPS BAND -->
+<div class="tips-band">
+  <h3>Before you call — what to expect</h3>
+  <div class="tips-row">
+    <div class="tip sr d1">
+      <span class="tip-icon">&#128274;</span>
+      <div class="tip-h">Fully confidential</div>
+      <p class="tip-p">What you share stays with the counsellor. You don't need to give your real name unless you want to.</p>
+    </div>
+    <div class="tip sr d2">
+      <span class="tip-icon">&#128172;</span>
+      <div class="tip-h">No "right reason" needed</div>
+      <p class="tip-p">You don't have to be in crisis. Feeling anxious, overwhelmed, or just needing someone to talk to is reason enough.</p>
+    </div>
+    <div class="tip sr d3">
+      <span class="tip-icon">&#129309;</span>
+      <div class="tip-h">Zero judgement</div>
+      <p class="tip-p">Counsellors are trained to listen without judgement. Share as much or as little as you're comfortable with.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="ft-logo" data-nav>Matters of the Mind</a>
+  <div class="ft-links">
+    <a href="index.html" data-nav>Home</a>
+    <a href="wellbeing.html" data-nav>Well-being</a>
+    <a href="toolkit.html" data-nav>Toolkit</a>
+    <a href="helplines.html">Helplines</a>
+  </div>
+  <p class="ft-crisis">Emergency: <a href="tel:112">Call 112</a></p>
+</footer>
+
+<script>
+function toggleDD(){
+  document.getElementById('ddb').classList.toggle('open');
+  document.getElementById('ddp').classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('ddw').contains(e.target)){
+    document.getElementById('ddb').classList.remove('open');
+    document.getElementById('ddp').classList.remove('open');
+  }
+});
+function toggleMob(){document.getElementById('mob').classList.toggle('open')}
+document.querySelectorAll('[data-nav]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var h=a.getAttribute('href');
+    if(h&&h.indexOf('http')<0&&h.indexOf('tel')<0&&h.indexOf('mailto')<0&&a.target!=='_blank'){
+      e.preventDefault();
+      document.body.classList.add('leaving');
+      setTimeout(function(){location.href=h},300);
+    }
+  });
+});
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(el){if(el.isIntersecting)el.target.classList.add('in')});
+},{threshold:.06});
+document.querySelectorAll('.sr').forEach(function(el){obs.observe(el)});
+</script>
+</body>
+</html>

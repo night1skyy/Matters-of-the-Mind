@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zen Garden — Matters of the Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#0b5259;--mid:#3d9999;--light:#6ec9cc;
+  --serif:'Playfair Display',serif;--sans:'Plus Jakarta Sans',sans-serif;
+  --sand1:#e8d5a3;--sand2:#d4b87a;--sand3:#c9a960;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--sans)}
+body{background:#1a2a1e;display:flex;flex-direction:column}
+
+/* NAV */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 1.8rem;background:rgba(11,82,89,.95);
+  backdrop-filter:blur(20px);flex-shrink:0;z-index:10;
+  border-bottom:1px solid rgba(110,201,204,.15);
+}
+.logo-sm{font-family:var(--serif);font-size:.95rem;color:#fff;text-decoration:none;opacity:.85}
+.logo-sm span{color:var(--light)}
+.game-title{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:rgba(255,255,255,.9);letter-spacing:.02em}
+.back-btn{
+  font-size:.74rem;font-weight:500;color:rgba(255,255,255,.7);
+  text-decoration:none;border:1px solid rgba(110,201,204,.3);
+  padding:.28rem .75rem;border-radius:6px;transition:all .22s;
+  cursor:pointer;background:none
+}
+.back-btn:hover{color:#fff;border-color:var(--light);background:rgba(110,201,204,.1)}
+
+/* GAME CONTAINER */
+.game-wrap{flex:1;display:flex;overflow:hidden;position:relative}
+#canvas{display:block;touch-action:none;cursor:none}
+
+/* TOOLBAR */
+.toolbar{
+  position:absolute;left:1.2rem;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.6rem;z-index:20;
+}
+.tool-btn{
+  width:48px;height:48px;border-radius:12px;
+  border:2px solid rgba(255,255,255,.2);
+  background:rgba(11,82,89,.82);backdrop-filter:blur(12px);
+  color:#fff;font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .22s;position:relative;
+}
+.tool-btn:hover{border-color:var(--light);background:rgba(61,153,153,.5);transform:scale(1.08)}
+.tool-btn.active{border-color:var(--light);background:rgba(61,153,153,.65);box-shadow:0 0 16px rgba(110,201,204,.4)}
+.tool-tip{
+  position:absolute;left:calc(100% + .7rem);
+  background:rgba(11,82,89,.92);color:#fff;
+  font-size:.72rem;padding:.3rem .6rem;border-radius:6px;
+  white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .18s;
+}
+.tool-btn:hover .tool-tip{opacity:1}
+
+/* SETTINGS PANEL */
+.settings{
+  position:absolute;right:1.2rem;top:1rem;
+  background:rgba(11,82,89,.88);backdrop-filter:blur(16px);
+  border:1px solid rgba(110,201,204,.25);border-radius:14px;
+  padding:1rem 1.2rem;z-index:20;min-width:170px;
+}
+.settings h4{font-family:var(--serif);font-style:italic;font-size:.9rem;color:rgba(255,255,255,.9);margin-bottom:.75rem}
+.setting-row{margin-bottom:.6rem}
+.setting-row label{display:block;font-size:.68rem;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:.28rem;letter-spacing:.06em;text-transform:uppercase}
+.setting-row input[type=range]{width:100%;accent-color:var(--light);height:3px}
+.setting-row select{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(110,201,204,.3);color:#fff;padding:.28rem .5rem;border-radius:6px;font-family:var(--sans);font-size:.75rem;outline:none}
+
+/* ACTIONS */
+.action-row{
+  position:absolute;bottom:1.2rem;right:1.2rem;
+  display:flex;gap:.55rem;z-index:20;
+}
+.act-btn{
+  padding:.4rem 1rem;border-radius:8px;font-family:var(--sans);
+  font-size:.76rem;font-weight:500;cursor:pointer;transition:all .22s;border:none;
+}
+.act-clear{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2)}
+.act-clear:hover{background:rgba(255,255,255,.22);color:#fff}
+.act-stone{background:rgba(61,153,153,.6);color:#fff;border:1px solid rgba(110,201,204,.4)}
+.act-stone:hover{background:rgba(61,153,153,.85)}
+.act-save{background:var(--deep);color:#fff;border:1px solid rgba(110,201,204,.3)}
+.act-save:hover{background:var(--mid)}
+
+/* AMBIENT */
+.ambient-btn{
+  position:absolute;bottom:1.2rem;left:5rem;z-index:20;
+  background:rgba(11,82,89,.8);border:1px solid rgba(110,201,204,.28);
+  color:rgba(255,255,255,.75);border-radius:8px;
+  padding:.38rem .85rem;font-size:.74rem;font-family:var(--sans);cursor:pointer;transition:all .22s;
+}
+.ambient-btn:hover{color:#fff;border-color:var(--light)}
+.ambient-btn.on{color:var(--light);border-color:var(--light);background:rgba(61,153,153,.2)}
+
+/* MOOD */
+.mood-label{
+  position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);
+  font-family:var(--serif);font-style:italic;font-size:.88rem;
+  color:rgba(255,255,255,.5);z-index:20;
+  pointer-events:none;transition:opacity .4s;
+  text-align:center;
+}
+
+/* TIME */
+.time-btn{
+  position:absolute;top:1rem;left:5rem;z-index:20;
+  background:rgba(11,82,89,.8);border:1px solid rgba(110,201,204,.25);
+  color:rgba(255,255,255,.7);border-radius:8px;
+  padding:.35rem .85rem;font-size:.74rem;font-family:var(--sans);cursor:pointer;transition:all .22s;
+}
+.time-btn:hover{color:#fff;border-color:var(--light)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="toolkit.html" class="logo-sm" data-page="toolkit.html">Matters of the <span>Mind</span></a>
+  <span class="game-title">Zen Garden</span>
+  <button class="back-btn" onclick="navigate('toolkit.html')">← Back</button>
+</nav>
+
+<div class="game-wrap">
+  <canvas id="canvas"></canvas>
+
+  <!-- Tools -->
+  <div class="toolbar">
+    <button class="tool-btn active" data-tool="rake3" onclick="setTool(this,'rake3')" title="3-line rake">
+      ☰<div class="tool-tip">3-line Rake</div>
+    </button>
+    <button class="tool-btn" data-tool="rake5" onclick="setTool(this,'rake5')" title="5-line rake">
+      ≡<div class="tool-tip">5-line Rake</div>
+    </button>
+    <button class="tool-btn" data-tool="spiral" onclick="setTool(this,'spiral')" title="Spiral brush">
+      ✦<div class="tool-tip">Spiral Rake</div>
+    </button>
+    <button class="tool-btn" data-tool="wave" onclick="setTool(this,'wave')" title="Wave tool">
+      〜<div class="tool-tip">Wave Tool</div>
+    </button>
+    <button class="tool-btn" data-tool="stone" onclick="setTool(this,'stone')" title="Place stone">
+      ●<div class="tool-tip">Place Stone</div>
+    </button>
+    <button class="tool-btn" data-tool="moss" onclick="setTool(this,'moss')" title="Place moss">
+      🌿<div class="tool-tip">Place Moss</div>
+    </button>
+    <button class="tool-btn" data-tool="erase" onclick="setTool(this,'erase')" title="Erase">
+      ○<div class="tool-tip">Smooth Eraser</div>
+    </button>
+  </div>
+
+  <!-- Time button -->
+  <button class="time-btn" id="time-btn" onclick="cycleTime()">☀ Day</button>
+
+  <!-- Settings -->
+  <div class="settings">
+    <h4>Garden Settings</h4>
+    <div class="setting-row">
+      <label>Rake size</label>
+      <input type="range" id="sz" min="12" max="60" value="28">
+    </div>
+    <div class="setting-row">
+      <label>Depth</label>
+      <input type="range" id="depth" min="1" max="8" value="3">
+    </div>
+    <div class="setting-row">
+      <label>Sand colour</label>
+      <select id="sand-theme" onchange="setSandTheme(this.value)">
+        <option value="golden">Golden sand</option>
+        <option value="ivory">Ivory</option>
+        <option value="dusk">Dusk rose</option>
+        <option value="moon">Moonstone</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Ambient + Mood + Actions -->
+  <button class="ambient-btn" id="amb-btn" onclick="toggleAmbient()">♪ Ambient off</button>
+  <div class="mood-label" id="mood-label">Rake slowly for deeper calm…</div>
+  <div class="action-row">
+    <button class="act-btn act-clear" onclick="clearGarden()">Reset garden</button>
+    <button class="act-btn act-stone" onclick="randomStones()">✦ Scatter stones</button>
+    <button class="act-btn act-save" onclick="saveGarden()">⬇ Save image</button>
+  </div>
+</div>
+
+<script>
+const C = document.getElementById('canvas');
+const cx = C.getContext('2d');
+
+// ── State ──────────────────────────────────────────────────────────────────
+let W, H, lines = [], stones = [], moss = [], tool = 'rake3', drawing = false, mx = 0, my = 0, prevX = null, prevY = null;
+let timeMode = 'day', ambientOn = false, moodTimer = null;
+let rakeSize = 28, depth = 3;
+const MOODS = ['Rake slowly for deeper calm…','Let your breath follow the sand…','Each stroke, release a little…','Find your rhythm here…','Stillness is not empty — it is full.','You are exactly where you need to be.'];
+let moodIdx = 0;
+
+const SAND_THEMES = {
+  golden: { base:'#e8d5a3', mid:'#d4b87a', dark:'#c9a960', groove:'#b89050' },
+  ivory:  { base:'#ede9df', mid:'#d9cfbe', dark:'#c5b89c', groove:'#b0a080' },
+  dusk:   { base:'#e8cec8', mid:'#d4a89e', dark:'#c99088', groove:'#b07468' },
+  moon:   { base:'#d8e0e8', mid:'#b8c4cc', dark:'#9aaab4', groove:'#7890a0' }
+};
+let sandTheme = SAND_THEMES.golden;
+
+const TIME_CONFIGS = {
+  day:   { sky:['#b3d9e6','#87c4d4'], ambient:1.0, shadow:'rgba(0,0,0,.15)' },
+  sunset:{ sky:['#f5c97a','#e8866a'], ambient:0.85, shadow:'rgba(100,40,0,.2)' },
+  dusk:  { sky:['#6b7fa0','#4a5870'], ambient:0.65, shadow:'rgba(20,20,40,.25)' },
+  night: { sky:['#1a2035','#0d1525'], ambient:0.35, shadow:'rgba(0,0,80,.3)' }
+};
+const TIME_LABELS = ['☀ Day','🌅 Sunset','🌆 Dusk','🌙 Night'];
+const TIME_KEYS = ['day','sunset','dusk','night'];
+
+// ── Resize ──────────────────────────────────────────────────────────────────
+function resize() {
+  const wr = document.querySelector('.game-wrap');
+  W = wr.clientWidth; H = wr.clientHeight;
+  C.width = W; C.height = H;
+  drawAll();
+}
+
+// ── Tool ────────────────────────────────────────────────────────────────────
+function setTool(btn, t) {
+  tool = t;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  C.style.cursor = (t === 'stone' || t === 'moss') ? 'crosshair' : 'none';
+}
+
+// ── Sand rendering ──────────────────────────────────────────────────────────
+function drawSand() {
+  const tc = TIME_CONFIGS[timeMode];
+  // sky bg
+  const grad = cx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, tc.sky[0]); grad.addColorStop(1, tc.sky[1]);
+  cx.fillStyle = grad; cx.fillRect(0, 0, W, H);
+
+  // sand base
+  const sandGrad = cx.createLinearGradient(0, H * .1, 0, H);
+  sandGrad.addColorStop(0, sandTheme.base);
+  sandGrad.addColorStop(.5, sandTheme.mid);
+  sandGrad.addColorStop(1, sandTheme.dark);
+  cx.fillStyle = sandGrad;
+  // Rounded sand bed
+  const m = 18;
+  roundedRect(cx, m, H * .12, W - m * 2, H - H * .14, 12);
+  cx.fill();
+
+  // grain texture
+  cx.save(); cx.globalAlpha = .06;
+  for (let i = 0; i < 800; i++) {
+    cx.fillStyle = i % 2 ? '#fff' : '#000';
+    cx.fillRect(m + Math.random() * (W - m * 2), H * .12 + Math.random() * (H - H * .14), 1, 1);
+  }
+  cx.restore();
+}
+
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── Draw lines ──────────────────────────────────────────────────────────────
+function drawLines() {
+  const tc = TIME_CONFIGS[timeMode];
+  lines.forEach(seg => {
+    if (seg.pts.length < 2) return;
+    const n = seg.count || 3;
+    const d = seg.depth || 3;
+    const sp = seg.spacing || 8;
+    const off = (n - 1) * sp / 2;
+
+    for (let i = 0; i < n; i++) {
+      const shift = i * sp - off;
+      cx.save();
+      cx.beginPath();
+      seg.pts.forEach((p, j) => {
+        const px = p.x + shift * Math.cos(seg.ang[j] + Math.PI / 2);
+        const py = p.y + shift * Math.sin(seg.ang[j] + Math.PI / 2);
+        j === 0 ? cx.moveTo(px, py) : cx.lineTo(px, py);
+      });
+      cx.strokeStyle = sandTheme.groove;
+      cx.lineWidth = Math.max(1, d * .8);
+      cx.lineCap = 'round'; cx.lineJoin = 'round';
+      cx.globalAlpha = .7 * (tc.ambient);
+      cx.stroke();
+
+      // highlight
+      cx.beginPath();
+      seg.pts.forEach((p, j) => {
+        const px = p.x + shift * Math.cos(seg.ang[j] + Math.PI / 2) - d * .3;
+        const py = p.y + shift * Math.sin(seg.ang[j] + Math.PI / 2) - d * .3;
+        j === 0 ? cx.moveTo(px, py) : cx.lineTo(px, py);
+      });
+      cx.strokeStyle = 'rgba(255,255,255,.25)';
+      cx.lineWidth = 1;
+      cx.globalAlpha = .5 * tc.ambient;
+      cx.stroke();
+      cx.restore();
+    }
+  });
+}
+
+// ── Draw stones ──────────────────────────────────────────────────────────────
+function drawStones() {
+  const tc = TIME_CONFIGS[timeMode];
+  stones.forEach(s => {
+    // Shadow
+    cx.save();
+    cx.globalAlpha = .18 * tc.ambient;
+    cx.beginPath();
+    cx.ellipse(s.x + s.r * .4, s.y + s.r * .5, s.r * 1.1, s.r * .5, 0, 0, Math.PI * 2);
+    cx.fillStyle = tc.shadow;
+    cx.fill();
+    cx.restore();
+
+    // Stone body
+    const g = cx.createRadialGradient(s.x - s.r * .35, s.y - s.r * .35, 0, s.x, s.y, s.r * 1.2);
+    g.addColorStop(0, s.light); g.addColorStop(.6, s.color); g.addColorStop(1, s.dark);
+    cx.beginPath();
+    cx.save();
+    cx.translate(s.x, s.y); cx.rotate(s.rot);
+    cx.scale(1, s.ry / s.r);
+    cx.arc(0, 0, s.r, 0, Math.PI * 2);
+    cx.restore();
+    cx.fillStyle = g;
+    cx.globalAlpha = tc.ambient + .1;
+    cx.fill();
+    cx.globalAlpha = 1;
+
+    // Lichen / moss marks
+    if (s.lichen) {
+      cx.save();
+      cx.globalAlpha = .35 * tc.ambient;
+      cx.fillStyle = '#7a9e6a';
+      cx.beginPath();
+      cx.arc(s.x + s.r * .2, s.y - s.r * .1, s.r * .18, 0, Math.PI * 2);
+      cx.fill();
+      cx.restore();
+    }
+  });
+}
+
+// ── Draw moss ────────────────────────────────────────────────────────────────
+function drawMoss() {
+  moss.forEach(m => {
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const r = m.r * (.4 + Math.random() * .6);
+      const x = m.x + Math.cos(a) * r * Math.random();
+      const y = m.y + Math.sin(a) * r * Math.random();
+      cx.save();
+      cx.globalAlpha = .55;
+      cx.fillStyle = ['#5a7a4a','#6b8e5a','#4a6840','#7a9e6a'][i % 4];
+      cx.beginPath();
+      cx.arc(x, y, 2 + Math.random() * 3, 0, Math.PI * 2);
+      cx.fill();
+      cx.restore();
+    }
+  });
+}
+
+// ── Custom cursor ────────────────────────────────────────────────────────────
+function drawCursor() {
+  if (tool === 'stone' || tool === 'moss') return;
+  const sz = parseInt(document.getElementById('sz').value);
+  cx.save();
+  cx.globalAlpha = .7;
+  cx.strokeStyle = 'rgba(11,82,89,.8)';
+  cx.lineWidth = 1.5;
+  cx.setLineDash([3, 3]);
+
+  if (tool === 'rake3' || tool === 'rake5') {
+    const n = tool === 'rake3' ? 3 : 5;
+    const sp = sz * .38;
+    const off = (n - 1) * sp / 2;
+    for (let i = 0; i < n; i++) {
+      const shift = i * sp - off;
+      cx.beginPath();
+      cx.arc(mx + shift, my, 5, 0, Math.PI * 2);
+      cx.stroke();
+    }
+  } else {
+    cx.beginPath();
+    cx.arc(mx, my, sz / 2, 0, Math.PI * 2);
+    cx.stroke();
+  }
+  // Centre dot
+  cx.setLineDash([]);
+  cx.fillStyle = 'rgba(61,153,153,.8)';
+  cx.beginPath(); cx.arc(mx, my, 3, 0, Math.PI * 2); cx.fill();
+  cx.restore();
+}
+
+// ── Night stars ──────────────────────────────────────────────────────────────
+let stars = Array.from({ length: 120 }, () => ({
+  x: Math.random(), y: Math.random() * .12, s: Math.random() * 1.5 + .5, o: Math.random()
+}));
+function drawStars() {
+  if (timeMode !== 'night' && timeMode !== 'dusk') return;
+  const a = timeMode === 'night' ? .85 : .3;
+  stars.forEach(s => {
+    cx.save();
+    cx.globalAlpha = s.o * a;
+    cx.fillStyle = '#fff';
+    cx.beginPath();
+    cx.arc(s.x * W, s.y * H, s.s, 0, Math.PI * 2);
+    cx.fill();
+    cx.restore();
+  });
+}
+
+// ── Draw all ─────────────────────────────────────────────────────────────────
+function drawAll() {
+  cx.clearRect(0, 0, W, H);
+  drawSand();
+  drawStars();
+  drawLines();
+  drawMoss();
+  drawStones();
+  drawCursor();
+}
+
+// ── Pointer events ───────────────────────────────────────────────────────────
+function getPos(e) {
+  const r = C.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - r.left, y: src.clientY - r.top };
+}
+
+function onDown(e) {
+  e.preventDefault();
+  const p = getPos(e);
+  mx = p.x; my = p.y;
+
+  if (tool === 'stone') {
+    addStone(p.x, p.y); drawAll(); return;
+  }
+  if (tool === 'moss') {
+    moss.push({ x: p.x, y: p.y, r: rakeSize }); drawAll(); return;
+  }
+  if (tool === 'erase') {
+    eraseAt(p.x, p.y); drawAll(); return;
+  }
+
+  drawing = true; prevX = p.x; prevY = p.y;
+  const seg = { pts: [{ x: p.x, y: p.y }], ang: [0], type: tool,
+    count: tool === 'rake3' ? 3 : tool === 'rake5' ? 5 : 1,
+    spacing: rakeSize * .38, depth };
+  lines.push(seg);
+  rotateMood();
+}
+
+function onMove(e) {
+  e.preventDefault();
+  const p = getPos(e);
+  mx = p.x; my = p.y;
+  if (!drawing) { drawAll(); return; }
+
+  const seg = lines[lines.length - 1];
+  const dx = p.x - prevX, dy = p.y - prevY;
+  const ang = Math.atan2(dy, dx);
+  seg.pts.push({ x: p.x, y: p.y });
+  seg.ang.push(ang);
+
+  if (tool === 'spiral') {
+    // Extra offset for spiral
+    const len = seg.pts.length;
+    seg.spiralOff = (seg.spiralOff || 0) + .15;
+    seg.pts[seg.pts.length - 1].x += Math.cos(seg.spiralOff) * 6;
+    seg.pts[seg.pts.length - 1].y += Math.sin(seg.spiralOff) * 6;
+  }
+  if (tool === 'wave') {
+    const len = seg.pts.length;
+    const wave = Math.sin(len * .4) * rakeSize * .3;
+    seg.pts[seg.pts.length - 1].x += Math.cos(ang + Math.PI / 2) * wave;
+    seg.pts[seg.pts.length - 1].y += Math.sin(ang + Math.PI / 2) * wave;
+  }
+  if (tool === 'erase') eraseAt(p.x, p.y);
+
+  prevX = p.x; prevY = p.y;
+  drawAll();
+}
+
+function onUp() { drawing = false; prevX = null; prevY = null; }
+
+function eraseAt(x, y) {
+  const sz = parseInt(document.getElementById('sz').value) * 1.5;
+  lines.forEach(seg => {
+    seg.pts = seg.pts.filter(p => Math.hypot(p.x - x, p.y - y) > sz / 2);
+    seg.ang = seg.ang.slice(0, seg.pts.length);
+  });
+  lines = lines.filter(s => s.pts.length > 1);
+  moss = moss.filter(m => Math.hypot(m.x - x, m.y - y) > sz / 2);
+}
+
+C.addEventListener('pointerdown', onDown);
+C.addEventListener('pointermove', onMove);
+C.addEventListener('pointerup', onUp);
+C.addEventListener('pointerleave', () => { onUp(); drawAll(); });
+
+// ── Stones ───────────────────────────────────────────────────────────────────
+const STONE_PALETTES = [
+  { color:'#8a9080', light:'#b0b8a8', dark:'#5c6455' },
+  { color:'#9a8878', light:'#c0afa0', dark:'#6a5850' },
+  { color:'#6a7888', light:'#909eb0', dark:'#404e58' },
+  { color:'#888078', light:'#a8a098', dark:'#585050' },
+];
+function addStone(x, y) {
+  const p = STONE_PALETTES[Math.floor(Math.random() * STONE_PALETTES.length)];
+  const r = rakeSize * .7 + Math.random() * rakeSize * .5;
+  stones.push({ x, y, r, ry: r * (.6 + Math.random() * .5), rot: Math.random() * Math.PI,
+    lichen: Math.random() < .35, ...p });
+}
+
+function randomStones() {
+  const margin = 80;
+  for (let i = 0; i < 6 + Math.floor(Math.random() * 5); i++) {
+    addStone(margin + Math.random() * (W - margin * 2), H * .2 + Math.random() * (H * .65));
+  }
+  drawAll();
+}
+
+// ── Controls ─────────────────────────────────────────────────────────────────
+document.getElementById('sz').addEventListener('input', e => { rakeSize = +e.target.value; drawAll(); });
+document.getElementById('depth').addEventListener('input', e => { depth = +e.target.value; });
+
+function setSandTheme(v) { sandTheme = SAND_THEMES[v]; drawAll(); }
+
+function clearGarden() {
+  if (!confirm('Reset the garden? Your raking will be cleared.')) return;
+  lines = []; stones = []; moss = []; drawAll();
+}
+
+const TIME_SEQ = ['day','sunset','dusk','night'];
+let timeIdx = 0;
+function cycleTime() {
+  timeIdx = (timeIdx + 1) % TIME_SEQ.length;
+  timeMode = TIME_SEQ[timeIdx];
+  document.getElementById('time-btn').textContent = TIME_LABELS[timeIdx];
+  drawAll();
+}
+
+function saveGarden() {
+  const link = document.createElement('a');
+  link.download = 'zen-garden.png';
+  link.href = C.toDataURL();
+  link.click();
+}
+
+// ── Mood rotation ─────────────────────────────────────────────────────────────
+function rotateMood() {
+  clearTimeout(moodTimer);
+  moodTimer = setTimeout(() => {
+    moodIdx = (moodIdx + 1) % MOODS.length;
+    const el = document.getElementById('mood-label');
+    el.style.opacity = 0;
+    setTimeout(() => { el.textContent = MOODS[moodIdx]; el.style.opacity = 1; }, 400);
+  }, 4000);
+}
+
+// ── Ambient sound (Web Audio) ─────────────────────────────────────────────────
+let audioCtx, ambNodes = [];
+function toggleAmbient() {
+  const btn = document.getElementById('amb-btn');
+  ambientOn = !ambientOn;
+  btn.classList.toggle('on', ambientOn);
+  btn.textContent = ambientOn ? '♪ Ambient on' : '♪ Ambient off';
+  if (ambientOn) startAmbient(); else stopAmbient();
+}
+function startAmbient() {
+  try {
+    audioCtx = audioCtx || new AudioContext();
+    // Wind-like pink noise
+    [0.06, 0.03].forEach((gain, i) => {
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 4, audioCtx.sampleRate);
+      const d = buf.getChannelData(0);
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for (let j = 0; j < d.length; j++) {
+        const w = Math.random() * 2 - 1;
+        b0=0.99886*b0+w*.0555179;b1=0.99332*b1+w*.0750759;
+        b2=0.96900*b2+w*.1538520;b3=0.86650*b3+w*.3104856;
+        b4=0.55000*b4+w*.5329522;b5=-0.7616*b5-w*.0168980;
+        d[j]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*0.11;b6=w*.115926;
+      }
+      const src = audioCtx.createBufferSource();
+      const g = audioCtx.createGain();
+      const bq = audioCtx.createBiquadFilter();
+      src.buffer = buf; src.loop = true;
+      bq.type = 'lowpass'; bq.frequency.value = 400 + i * 200;
+      src.connect(bq); bq.connect(g); g.connect(audioCtx.destination);
+      g.gain.value = gain;
+      src.start();
+      ambNodes.push(src, g);
+    });
+  } catch(e) {}
+}
+function stopAmbient() { ambNodes.forEach(n => { try { n.stop?.(); n.disconnect?.(); } catch(e){} }); ambNodes = []; }
+
+// ── Animate ───────────────────────────────────────────────────────────────────
+let frame = 0;
+function animate() {
+  frame++;
+  // Animate blobs and subtle redraw
+  if (frame % 6 === 0 && !drawing) {
+    stars.forEach(s => { s.o = .3 + .7 * Math.abs(Math.sin(Date.now() * .001 + s.x * 10)); });
+    if (timeMode === 'night' || timeMode === 'dusk') drawAll();
+  }
+  requestAnimationFrame(animate);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+resize();
+window.addEventListener('resize', resize);
+animate();
+
+// Initial stones
+setTimeout(() => {
+  addStone(W * .35, H * .45);
+  addStone(W * .65, H * .38);
+  addStone(W * .55, H * .65);
+  drawAll();
+}, 100);
+
+// Page navigation
+function navigate(href) {
+  document.body.style.opacity = 0;
+  document.body.style.transform = 'translateY(-10px)';
+  document.body.style.transition = 'opacity .3s, transform .3s';
+  setTimeout(() => window.location.href = href, 310);
+}
+document.querySelectorAll('a[data-page]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    navigate(a.getAttribute('href'));
+  });
+});
+</script>
+</body>
+</html>
