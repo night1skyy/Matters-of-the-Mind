@@ -401,12 +401,20 @@ footer{background:var(--black);padding:2rem 3rem;border-top:1px solid rgba(255,2
 
 <script>
 const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.06});
-document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
-window.addEventListener('scroll',()=>document.getElementById('mn')?.classList.toggle('scrolled',window.scrollY>10),{passive:true});
-document.querySelectorAll('a[href]').forEach(a=>{
-  const h=a.getAttribute('href');
-  if(h&&!h.startsWith('#')&&!h.startsWith('http')&&!h.startsWith('tel')&&a.target!=='_blank'){
-    a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('exit');setTimeout(()=>location.href=h,280)});
+document.querySelectorAll('a[href]').forEach(a => {
+  const h = a.getAttribute('href');
+
+  if (
+    h &&
+    !h.startsWith('#') &&
+    !h.startsWith('http') &&
+    !h.startsWith('tel') &&
+    !h.startsWith('mailto') &&
+    a.target !== '_blank'
+  ) {
+    a.addEventListener('click', function () {
+      document.body.classList.add('exit');
+    });
   }
 });
 
